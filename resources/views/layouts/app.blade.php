@@ -59,13 +59,13 @@
       </div><!-- aside-loggedin -->
       <ul class="nav nav-aside">
         <li class="nav-label">OSTR</li>
-        <li class="nav-item"><a href="" class="nav-link"><i data-feather="trello"></i> <span>Dashboard</span></a></li>
-        <li class="nav-item with-sub {{ (request()->is('assayer/*')) ? 'active show' : '' }}">
+        <li class="nav-item {{ (request()->is('stockrequests/main-dashboard*')) ? 'active show' : '' }}"><a href="{{ route('stockrequests.dashboard') }}" class="nav-link"><i data-feather="trello"></i> <span>Dashboard</span></a></li>
+        <li class="nav-item with-sub {{ (request()->is('stockrequests/*')) ? 'active show' : '' }}">
           <a href="#" class="nav-link"><i data-feather="layers"></i> <span>Stock Request</span><span class="badge badge-danger rounded-circle ml-3">0</span></a>
           <ul>
-            <li class=""><a href="">Manage Stock Request</a></li>
-            <li class=""><a href="">Create Stock Request</a></li>
-            <li class=""><a href="">Unsaved Stock Request</a></li>
+            <li class="{{ (request()->is('stockrequests/dashboard*')) ? 'active' : '' }}"><a href="{{ route('stockrequests.index') }}">Manage Stock Request</a></li>
+            <li class="{{ (request()->is('stockrequests/create*')) ? 'active' : '' }}"><a href="{{ route('stockrequests.create') }}">Create Stock Request</a></li>
+            <li class="{{ (request()->is('stockrequests/unsavedDashboard*')) ? 'active' : '' }}"><a href="{{ route('stockrequests.unsavedDashboard') }}">Unsaved Stock Request</a></li>
           </ul>
         </li>
         <li class="nav-item"><a href="" class="nav-link"><i data-feather="check-circle"></i> <span>Approval (WFS)</span></a></li>

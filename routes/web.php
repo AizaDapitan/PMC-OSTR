@@ -5,8 +5,11 @@ use App\Http\Controllers\ApplicationController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\RequestedItemController;
+use App\Http\Controllers\StockRequestController;
 use App\Http\Controllers\UserController;
 use Symfony\Component\HttpKernel\DataCollector\RouterDataCollector;
 
@@ -34,7 +37,38 @@ Route::middleware(['auth'])->group(function () {
     Route::get('auth/change_password', [LoginController::class, 'change_password'])->name("auth.change_password");
     Route::get('logout', [LoginController::class, 'logout'])->name("logout");
 
+    // Stock Request
+    Route::group(
+        ['prefix' => 'stockrequests'],
+        function () {
+            Route::get('/main-dashboard', [StockRequestController::class, 'dashboard'])->name('stockrequests.dashboard');
+            Route::get('/dashboard', [StockRequestController::class, 'index'])->name('stockrequests.index');
+            Route::get('/create', [StockRequestController::class, 'create'])->name('stockrequests.create');
+            Route::post('/store', [StockRequestController::class, 'store'])->name('stockrequests.store');
+            Route::get('/getRequests', [StockRequestController::class, 'getRequests'])->name('stockrequests.getRequests');
+            Route::get('/edit/{id}',[StockRequestController::class, 'edit'])->name('stockrequests.edit');
+            Route::post('/update',[StockRequestController::class,'update'])->name('stockrequests.update');
+            Route::get('/view/{id}',[StockRequestController::class, 'view'])->name('stockrequests.view');
+            Route::post('/delete',[StockRequestController::class, 'delete'])->name('stockrequests.delete');
+            Route::post('/autosave',[StockRequestController::class, 'autosave'])->name('stockrequests.autosave');
+            Route::get('/getRequestsUnsaved', [StockRequestController::class, 'getRequestsUnsaved'])->name('stockrequests.getRequestsUnsaved');
+            Route::get('/unsaved-dashboard', [StockRequestController::class, 'unsavedDashboard'])->name('stockrequests.unsavedDashboard');
+        }
+    );
+    Route::group(['prefix' => 'requested_items'], function () {
+        Route::post('/store',[RequestedItemController::class,'store'])->name('requested_items.store');
+        Route::post('/getRequestedItems',[RequestedItemController::class,'getRequestedItems'])->name('requested_items.getRequestedItems');
+        Route::post('/getRequestedItemsSaved',[RequestedItemController::class,'getRequestedItemsSaved'])->name('requested_items.getRequestedItemsSaved');
+        Route::post('/update',[RequestedItemController::class,'update'])->name('requested_items.update');
+        Route::post('/delete',[RequestedItemController::class,'delete'])->name('requested_items.delete');
 
+    });
+    Route::group(
+        ['prefix' => 'products'],
+        function () {
+            Route::get('/getPublishedProducts', [ProductController::class, 'getPublishedProducts'])->name('products.getPublishedProducts');
+        }
+    );
     // User Controller
     Route::group(
         ['prefix' => 'users'],

@@ -20,7 +20,7 @@ import Dropdown from "primevue/dropdown";
 import DynamicDialog from 'primevue/dynamicdialog';
 import Tooltip from 'primevue/tooltip';
 import Calendar from 'primevue/calendar';
-
+import AutoComplete from 'primevue/autocomplete';
 // import 'primeicons/primeicons.css';
 
 const app = createApp({});
@@ -120,6 +120,31 @@ app.component(
     require("./components/application/edit_application.vue").default
 );
 
+app.component(
+    "stockrequest_index-component",
+    require("./components/stockrequest/index.vue").default
+);
+app.component(
+    "stockrequest_create-component",
+    require("./components/stockrequest/create.vue").default
+);
+app.component(
+    "stockrequest_edit-component",
+    require("./components/stockrequest/edit.vue").default
+);
+app.component(
+    "stockrequest_view-component",
+    require("./components/stockrequest/view.vue").default
+);
+app.component(
+    "stockrequest_dashboard-component",
+    require("./components/stockrequest/dashboard.vue").default
+);
+app.component(
+    "stockrequest_unsaved-component",
+    require("./components/stockrequest/unsaved.vue").default
+);
+
 app.component("DataTable", DataTable);
 app.component("Column", Column);
 app.component("Toolbar", Toolbar);
@@ -130,6 +155,6 @@ app.component("ConfirmDialog", ConfirmDialog);
 app.component("DynamicDialog", DynamicDialog);
 app.component("Dropdown", Dropdown);
 app.component("Calendar", Calendar);
-
+app.component("AutoComplete", AutoComplete);
 app.mount("#app");
 

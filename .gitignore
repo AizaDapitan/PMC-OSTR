@@ -6,6 +6,9 @@
 # Node artifact files
 node_modules/
 dist/
+/vendor
+.env
+.env.backup
 
 # Compiled Java class files
 *.class
@@ -47,4 +50,7 @@ Thumbs.db
 *.flv
 *.mov
 *.wmv
+
+/.idea
+/.vscode
 
