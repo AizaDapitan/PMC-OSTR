@@ -26,8 +26,9 @@ class CreateStockRequest extends FormRequest
         return [
             'dept' => 'required',
             'date_needed' => 'required',
-            'cost_code' => 'required',
+            'cost_code' => 'required|max:255',
             'requested_by' => 'required',
+            'remarks' => 'max:255',
         ];
     }
     public function messages()
@@ -36,6 +37,9 @@ class CreateStockRequest extends FormRequest
             'dept.required' => "The Department is required.",
             'date_needed.required' => "The Date Needed is required.",
             'cost_code.required' => "The Cost Code is required.",
+            'remarks.max' => 'The Remarks must not be greater than 255 characters.',
+            'cost_code.max' => 'The Remarks must not be greater than 255 characters.'
+
         ];
     }
 }

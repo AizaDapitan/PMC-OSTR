@@ -167,14 +167,21 @@
                     icon="pi pi-pencil"
                     class="p-button-rounded p-button-success mr-2"
                     @click="edit(slotProps)"
-                    :disabled="slotProps.data.status == 'Approved' || slotProps.data.status == 'Completed'"
+                    :disabled="
+                      slotProps.data.status == 'Approved' ||
+                      slotProps.data.status == 'Completed'
+                    "
                   />
                   <Button
                     v-bind:title="deleteMsg"
                     icon="pi pi-trash"
                     class="p-button-rounded p-button-warning mr-2"
                     @click="deleteRequest(slotProps)"
-                    :disabled="slotProps.data.status == 'Approved' || slotProps.data.status == 'Completed'"
+                    :disabled="
+                      slotProps.data.status == 'Approved' ||
+                      slotProps.data.status == 'Completed' || 
+                      !this.delete
+                    "
                   />
                 </template>
               </Column>
@@ -200,6 +207,7 @@
     <script>
 import { FilterMatchMode, FilterOperator } from "primevue/api";
 export default {
+  props: ["delete"],
   data() {
     return {
       requests: [],
@@ -214,6 +222,7 @@ export default {
     };
   },
   created() {
+    console.log(this.delete);
     this.fetchRecord();
     this.initFilters();
   },

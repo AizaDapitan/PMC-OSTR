@@ -13,7 +13,7 @@
 
 	<!-- CSRF Token -->
 	<meta name="csrf-token" content="{{ csrf_token() }}" />
-	<title>Philsaga - Laboratory Information and Management System</title>
+	<title>Philsaga - Online Stock Transfer Request System</title>
 	<link rel="shortcut icon" type="image/x-icon" href="{{env('APP_URL')}}/assets/img/favicon.png" />
 
 	<!-- vendor css -->

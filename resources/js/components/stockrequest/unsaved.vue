@@ -174,7 +174,7 @@
                       icon="pi pi-trash"
                       class="p-button-rounded p-button-warning mr-2"
                       @click="deleteRequest(slotProps)"
-                      :disabled="slotProps.data.status == 'Approved'"
+                      :disabled="slotProps.data.status == 'Approved' || !this.delete"
                     />
                   </template>
                 </Column>
@@ -200,6 +200,7 @@
       <script>
   import { FilterMatchMode, FilterOperator } from "primevue/api";
   export default {
+    props : ['delete'],
     data() {
       return {
         requests: [],

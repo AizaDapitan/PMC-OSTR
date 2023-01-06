@@ -42,7 +42,9 @@
         </div>
         <div class="col-lg-12">
           <div class="form-group">
-            <label for="description"> Description </label>
+            <label for="description"> Description<span class="text-danger" aria-required="true">
+                  *
+                </span> </label>
             <AutoComplete
               v-model="selectedProduct"
               :suggestions="filteredProducts"
@@ -56,7 +58,9 @@
         </div>
         <div class="col-lg-12">
           <div class="form-group">
-            <label for="requested-qty"> Requested Qty. </label>
+            <label for="requested-qty"> Requested Qty. <span class="text-danger" aria-required="true">
+                  *
+                </span> </label>
             <input
               type="number"
               class="form-control input-sm"

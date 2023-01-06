@@ -145,6 +145,14 @@ app.component(
     require("./components/stockrequest/unsaved.vue").default
 );
 
+app.component(
+    "approval_index-component",
+    require("./components/approval/index.vue").default
+);
+app.component(
+    "approval_view-component",
+    require("./components/approval/view.vue").default
+);
 app.component("DataTable", DataTable);
 app.component("Column", Column);
 app.component("Toolbar", Toolbar);

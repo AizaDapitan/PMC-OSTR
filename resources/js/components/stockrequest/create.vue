@@ -346,21 +346,35 @@ export default {
       this.products = res.data;
     },
     async save() {
-      this.form.date_needed = document.getElementById("date-needed").value;
-      this.form.datefiled = document.getElementById("date-filed").value;
-
-      const res = await this.submit("post", "/stockrequests/store", this.form, {
-        headers: {
-          "Content-Type":
-            "multipart/form-data; charset=utf-8; boundary=" +
-            Math.random().toString().substr(2),
-        },
-      });
-      if (res.status === 200) {
-        window.location.href = this.$env_Url + "/stockrequests/dashboard";
-      } else {
+      this.errors = {};
+      this.errors_exist = false;
+      if (this.items.length === 0) {
+        this.errors = {
+          error: ["Please add atleast 1 item!"],
+        };
         this.errors_exist = true;
-        this.errors = res.data.errors;
+      } else {
+        this.form.date_needed = document.getElementById("date-needed").value;
+        this.form.datefiled = document.getElementById("date-filed").value;
+
+        const res = await this.submit(
+          "post",
+          "/stockrequests/store",
+          this.form,
+          {
+            headers: {
+              "Content-Type":
+                "multipart/form-data; charset=utf-8; boundary=" +
+                Math.random().toString().substr(2),
+            },
+          }
+        );
+        if (res.status === 200) {
+          window.location.href = this.$env_Url + "/stockrequests/dashboard";
+        } else {
+          this.errors_exist = true;
+          this.errors = res.data.errors;
+        }
       }
     },
 
@@ -429,7 +443,7 @@ export default {
     },
     async autosave() {
       this.seconds = this.seconds + 1;
-      if (this.seconds == 5) {
+      if (this.seconds == 15) {
         this.form.date_needed = document.getElementById("date-needed").value;
         this.form.datefiled = document.getElementById("date-filed").value;
 

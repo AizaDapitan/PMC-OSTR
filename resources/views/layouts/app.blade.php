@@ -61,35 +61,35 @@
         <li class="nav-label">OSTR</li>
         <li class="nav-item {{ (request()->is('stockrequests/main-dashboard*')) ? 'active show' : '' }}"><a href="{{ route('stockrequests.dashboard') }}" class="nav-link"><i data-feather="trello"></i> <span>Dashboard</span></a></li>
         <li class="nav-item with-sub {{ (request()->is('stockrequests/*')) ? 'active show' : '' }}">
-          <a href="#" class="nav-link"><i data-feather="layers"></i> <span>Stock Request</span><span class="badge badge-danger rounded-circle ml-3">0</span></a>
+          <a href="#" class="nav-link"><i data-feather="layers"></i> <span>Stock Request</span><span class="badge badge-danger rounded-circle ml-3">{{ $unsaved }}</span></a>
           <ul>
             <li class="{{ (request()->is('stockrequests/dashboard*')) ? 'active' : '' }}"><a href="{{ route('stockrequests.index') }}">Manage Stock Request</a></li>
             <li class="{{ (request()->is('stockrequests/create*')) ? 'active' : '' }}"><a href="{{ route('stockrequests.create') }}">Create Stock Request</a></li>
-            <li class="{{ (request()->is('stockrequests/unsavedDashboard*')) ? 'active' : '' }}"><a href="{{ route('stockrequests.unsavedDashboard') }}">Unsaved Stock Request</a></li>
+            <li class="{{ (request()->is('stockrequests/unsavedDashboard*')) ? 'active' : '' }}"><a href="{{ route('stockrequests.unsavedDashboard') }}">Unsaved Stock Request<span class="badge badge-danger rounded-circle ml-3">{{ $unsaved }}</span></a></li>
           </ul>
         </li>
-        <li class="nav-item"><a href="" class="nav-link"><i data-feather="check-circle"></i> <span>Approval (WFS)</span></a></li>
+        <li class="nav-item {{ (request()->is('approvals/dashboard*')) ? 'active show' : '' }}""><a href="{{ route('approvals.index') }}" class="nav-link"><i data-feather="check-circle"></i> <span>Approval (WFS)</span><span class="badge badge-danger rounded-circle ml-3">{{ $approval }}</span></a></li>
         <li class="nav-item"><a href="" class="nav-link"><i data-feather="arrow-down-circle"></i> <span>MCD Receiving</span></a></li>
         <li class="nav-label mg-t-25">Maintenance</li>
         <li class="nav-item with-sub {{ (request()->is('users/*')) ? 'active show' : '' }}">
           <a href="#" class="nav-link"><i data-feather="users"></i> <span>User Maintenance</span></a>
           <ul>
-            <li class="{{ (request()->is('users/dashboard*')) ? 'active' : '' }}"><a href="{{ route('users.index') }}">Dashboard</a></li>
+            <li class="{{ (request()->is('users/dashboard*')) ? 'active' : '' }}"><a href="{{ route('users.index') }}">Manage Users</a></li>
             <li class="{{ (request()->is('users/create*')) ? 'active' : '' }}"><a href="{{ route('users.create') }}">Create</a></li>
           </ul>
         </li>
         <li class="nav-item with-sub {{ (request()->is('roles/*')) ? 'active show' : '' }}">
           <a href="" class="nav-link"><i data-feather="list"></i> <span>Roles</span></a>
           <ul>
-            <li class="{{ (request()->is('roles/dashboard*')) ? 'active' : '' }}"><a href="{{ route('roles.index') }}">Dashboard</a></li>
+            <li class="{{ (request()->is('roles/dashboard*')) ? 'active' : '' }}"><a href="{{ route('roles.index') }}">Manage Roles</a></li>
             <li class="{{ (request()->is('roles/create')) ? 'active' : '' }}"><a href="{{ route('roles.create') }}">Create</a></li>
           </ul>
         </li>
         <li class="nav-item with-sub {{ (request()->is('permissions/*')) ? 'active show' : '' }}">
           <a href="" class="nav-link"><i data-feather="list"></i> <span>Permissions</span></a>
           <ul>
-            <li class="{{ (request()->is('permissions/dashboard*')) ? 'active' : '' }}"><a href="{{ route('permissions.index') }}">Dashboard</a></li>
-            <li class="{{ (request()->is('permissions/create')) ? 'active' : '' }}"><a href="{{ route('permissions.create') }}">create</a></li>
+            <li class="{{ (request()->is('permissions/dashboard*')) ? 'active' : '' }}"><a href="{{ route('permissions.index') }}">Manage Permissions</a></li>
+            <li class="{{ (request()->is('permissions/create')) ? 'active' : '' }}"><a href="{{ route('permissions.create') }}">Create</a></li>
           </ul>
         </li>
         <li class="nav-item {{ (request()->is('accessrights/user*')) ? 'active' : '' }}"><a href="{{ route('accessrights.user') }}" class="nav-link"><i data-feather="settings"></i> <span>User Access Rights</span></a></li>
@@ -363,8 +363,6 @@
             success: function(response) {}
           });
         }
-        // console.log(schedule);
-        // console.log(curDate);
         if (schedule > curDate) {
           var TimeDiff = timeDiffCalc(new Date(schedule), new Date());
         } else {
@@ -409,6 +407,24 @@
 
         return difference;
         // }
+      }
+      WFS();
+      setInterval(WFS, 15000);
+      function WFS(){
+        $.ajax({
+            url: '{!! route('stockrequests.updateRequestApproval') !!}',
+            type: 'GET',
+            async: false,
+            success: function(response) {}
+          });
+
+          $.ajax({
+            url: '{!! route('stockrequests.insertIntoWFS') !!}',
+            type: 'GET',
+            async: false,
+            success: function(response) {}
+          });
+          
       }
     </script>
 </body>

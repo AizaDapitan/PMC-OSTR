@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\Application;
 use App\Models\DeptuserTrans;
+use App\Models\StockRequest;
 use App\Models\TransmittalItem;
 use App\Models\Worksheet;
 use DateTime;
@@ -44,6 +45,8 @@ class AppServiceProvider extends ServiceProvider
                 $schedule =  Application::where('deleted_at', null)->whereBetween('scheduled_date', [$from, $to])->orderBy('scheduled_date', 'asc')->first();
                 $datetime = new DateTime();
                 $currentDateTime = new DateTime();
+                $unsaved = StockRequest::where([['isSaved', 0], ['active', 1], ['created_by', auth()->user()->username]])->count();
+                $approval = StockRequest::where([['isSaved', 1], ['active', 1], ['dept', auth()->user()->dept],['status','Pending']])->count();
                 if ($schedule) {
                     $datetime = $schedule['scheduled_date'] . ' ' . $schedule['scheduled_time'];
                     $datetime = new DateTime($datetime);
@@ -62,7 +65,9 @@ class AppServiceProvider extends ServiceProvider
                         'scheduledate',
                         'scheduletime',
                         'datetime',
-                        'currentDateTime'
+                        'currentDateTime',
+                        'unsaved',
+                        'approval'
                     )
                 );
             }

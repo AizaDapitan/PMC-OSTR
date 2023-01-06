@@ -27,7 +27,6 @@ return [
     */
 
     'env' => env('APP_ENV', 'production'),
-
     /*
     |--------------------------------------------------------------------------
     | Application Debug Mode
@@ -57,6 +56,7 @@ return [
     'asset_url' => env('ASSET_URL', null),
     'api_path' => env('API_PATH', null),
     'it_email' => env('IT_EMAIL', null),
+    'template_id' => env('TEMPLATE_ID', null),
 
     /*
     |--------------------------------------------------------------------------

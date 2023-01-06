@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AccessRightsController;
 use App\Http\Controllers\ApplicationController;
+use App\Http\Controllers\ApprovalController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\PermissionController;
@@ -46,22 +47,30 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/create', [StockRequestController::class, 'create'])->name('stockrequests.create');
             Route::post('/store', [StockRequestController::class, 'store'])->name('stockrequests.store');
             Route::get('/getRequests', [StockRequestController::class, 'getRequests'])->name('stockrequests.getRequests');
-            Route::get('/edit/{id}',[StockRequestController::class, 'edit'])->name('stockrequests.edit');
-            Route::post('/update',[StockRequestController::class,'update'])->name('stockrequests.update');
-            Route::get('/view/{id}',[StockRequestController::class, 'view'])->name('stockrequests.view');
-            Route::post('/delete',[StockRequestController::class, 'delete'])->name('stockrequests.delete');
-            Route::post('/autosave',[StockRequestController::class, 'autosave'])->name('stockrequests.autosave');
+            Route::get('/edit/{id}', [StockRequestController::class, 'edit'])->name('stockrequests.edit');
+            Route::post('/update', [StockRequestController::class, 'update'])->name('stockrequests.update');
+            Route::get('/view/{id}', [StockRequestController::class, 'view'])->name('stockrequests.view');
+            Route::post('/delete', [StockRequestController::class, 'delete'])->name('stockrequests.delete');
+            Route::post('/autosave', [StockRequestController::class, 'autosave'])->name('stockrequests.autosave');
             Route::get('/getRequestsUnsaved', [StockRequestController::class, 'getRequestsUnsaved'])->name('stockrequests.getRequestsUnsaved');
             Route::get('/unsaved-dashboard', [StockRequestController::class, 'unsavedDashboard'])->name('stockrequests.unsavedDashboard');
+            Route::get('/updateRequestApproval', [StockRequestController::class, 'updateRequestApproval'])->name('stockrequests.updateRequestApproval');
+            Route::get('/insertIntoWFS', [StockRequestController::class, 'insertIntoWFS'])->name('stockrequests.insertIntoWFS');
+            
         }
     );
-    Route::group(['prefix' => 'requested_items'], function () {
-        Route::post('/store',[RequestedItemController::class,'store'])->name('requested_items.store');
-        Route::post('/getRequestedItems',[RequestedItemController::class,'getRequestedItems'])->name('requested_items.getRequestedItems');
-        Route::post('/getRequestedItemsSaved',[RequestedItemController::class,'getRequestedItemsSaved'])->name('requested_items.getRequestedItemsSaved');
-        Route::post('/update',[RequestedItemController::class,'update'])->name('requested_items.update');
-        Route::post('/delete',[RequestedItemController::class,'delete'])->name('requested_items.delete');
+    Route::group(['prefix' => 'approvals'], function () {
+        Route::get('/dashboard', [ApprovalController::class, 'index'])->name('approvals.index');
+        Route::get('/getRequests', [ApprovalController::class, 'getRequests'])->name('approvals.getRequests');
+        Route::get('/view/{id}', [ApprovalController::class, 'view'])->name('approvals.view');
 
+    });
+    Route::group(['prefix' => 'requested_items'], function () {
+        Route::post('/store', [RequestedItemController::class, 'store'])->name('requested_items.store');
+        Route::post('/getRequestedItems', [RequestedItemController::class, 'getRequestedItems'])->name('requested_items.getRequestedItems');
+        Route::post('/getRequestedItemsSaved', [RequestedItemController::class, 'getRequestedItemsSaved'])->name('requested_items.getRequestedItemsSaved');
+        Route::post('/update', [RequestedItemController::class, 'update'])->name('requested_items.update');
+        Route::post('/delete', [RequestedItemController::class, 'delete'])->name('requested_items.delete');
     });
     Route::group(
         ['prefix' => 'products'],

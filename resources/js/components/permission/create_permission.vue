@@ -36,7 +36,7 @@
     </div>
     <div class="row row-sm">
       <div class="col-lg-6">
-        <div class="form-group">
+        <!-- <div class="form-group">
           <label class="d-block">Status <i class="text-danger">*</i></label>
           <input
             type="checkbox"
@@ -48,7 +48,7 @@
           <label for="statusValue">
             <span>Active</span>
           </label>
-        </div>
+        </div> -->
 
         <div class="form-group">
           <label class="d-block">Module <i class="text-danger">*</i></label>
