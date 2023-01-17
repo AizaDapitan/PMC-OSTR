@@ -5,6 +5,7 @@ use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\ApprovalController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\MCDController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\RoleController;
@@ -31,6 +32,9 @@ Route::get('auth/adminlogin', [LoginController::class, 'adminIndex'])->name("aut
 Route::post('auth/adminSubmit', [LoginController::class, 'adminSubmit'])->name("auth.adminSubmit");
 Route::get('auth/forgot_password', [LoginController::class, 'forgot_password'])->name("auth.forgot_password");
 Route::post('auth/sendRequest', [LoginController::class, 'sendRequest'])->name("auth.sendRequest");
+Route::get('approvals/checkDetails/{id}', [ApprovalController::class, 'checkDetails']);
+Route::post('approvals/getRequestedItemsSaved', [ApprovalController::class, 'getRequestedItemsSaved']);
+
 
 Route::middleware(['auth'])->group(function () {
 
@@ -56,15 +60,24 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/unsaved-dashboard', [StockRequestController::class, 'unsavedDashboard'])->name('stockrequests.unsavedDashboard');
             Route::get('/updateRequestApproval', [StockRequestController::class, 'updateRequestApproval'])->name('stockrequests.updateRequestApproval');
             Route::get('/insertIntoWFS', [StockRequestController::class, 'insertIntoWFS'])->name('stockrequests.insertIntoWFS');
-            
         }
     );
     Route::group(['prefix' => 'approvals'], function () {
         Route::get('/dashboard', [ApprovalController::class, 'index'])->name('approvals.index');
         Route::get('/getRequests', [ApprovalController::class, 'getRequests'])->name('approvals.getRequests');
         Route::get('/view/{id}', [ApprovalController::class, 'view'])->name('approvals.view');
-
     });
+    Route::group(
+        ['prefix' => 'mcds'],
+        function () {
+            Route::get('/dashboard', [MCDController::class, 'index'])->name('mcds.index');
+            Route::get('/getRequests', [MCDController::class, 'getRequests'])->name('mcds.getRequests');
+            Route::post('/receive', [MCDController::class, 'receive'])->name('mcds.receive');
+            Route::get('/view/{id}', [MCDController::class, 'view'])->name('mcds.view');
+            Route::get('/edit/{id}', [MCDController::class, 'edit'])->name('mcds.edit');
+        }
+    );
+
     Route::group(['prefix' => 'requested_items'], function () {
         Route::post('/store', [RequestedItemController::class, 'store'])->name('requested_items.store');
         Route::post('/getRequestedItems', [RequestedItemController::class, 'getRequestedItems'])->name('requested_items.getRequestedItems');

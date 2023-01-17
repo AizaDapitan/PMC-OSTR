@@ -68,8 +68,14 @@
             <li class="{{ (request()->is('stockrequests/unsavedDashboard*')) ? 'active' : '' }}"><a href="{{ route('stockrequests.unsavedDashboard') }}">Unsaved Stock Request<span class="badge badge-danger rounded-circle ml-3">{{ $unsaved }}</span></a></li>
           </ul>
         </li>
-        <li class="nav-item {{ (request()->is('approvals/dashboard*')) ? 'active show' : '' }}""><a href="{{ route('approvals.index') }}" class="nav-link"><i data-feather="check-circle"></i> <span>Approval (WFS)</span><span class="badge badge-danger rounded-circle ml-3">{{ $approval }}</span></a></li>
-        <li class="nav-item"><a href="" class="nav-link"><i data-feather="arrow-down-circle"></i> <span>MCD Receiving</span></a></li>
+        <li class="nav-item {{ (request()->is('approvals/dashboard*')) ? 'active show' : '' }}""><a href=" {{ route('approvals.index') }}" class="nav-link"><i data-feather="check-circle"></i> <span>Approval (WFS)</span><span class="badge badge-danger rounded-circle ml-3">{{ $approval }}</span></a></li>
+        <li class="nav-item with-sub {{ (request()->is('mcds/*')) ? 'active show' : '' }}">
+          <a href="#" class="nav-link"><i data-feather="arrow-down-circle"></i> <span>MCD Receiving</span><span class="badge badge-danger rounded-circle ml-3">{{ $receiving }}</span></a>
+          <ul>
+            <li class="{{ (request()->is('mcds/dashboard*')) ? 'active' : '' }}"><a href="{{ route('mcds.index') }}">Manage Receiving<span class="badge badge-danger rounded-circle ml-3">{{ $receiving }}</span></a></li>
+            <li class="{{ (request()->is('mcds/create*')) ? 'active' : '' }}"><a href="{{ route('stockrequests.create') }}">Completed Stock</a></li>
+          </ul>
+        </li>
         <li class="nav-label mg-t-25">Maintenance</li>
         <li class="nav-item with-sub {{ (request()->is('users/*')) ? 'active show' : '' }}">
           <a href="#" class="nav-link"><i data-feather="users"></i> <span>User Maintenance</span></a>
@@ -102,7 +108,7 @@
           </ul>
         </li>
         <li class="nav-item {{ (request()->is('applications/dashboard*')) ? 'active' : '' }}"><a href="{{ route('applications.index') }}" class="nav-link"><i data-feather="grid"></i> <span>Application Maintenance</span></a></li>
-        
+
 
       </ul>
     </div>
@@ -410,21 +416,22 @@
       }
       WFS();
       setInterval(WFS, 15000);
-      function WFS(){
-        $.ajax({
-            url: '{!! route('stockrequests.updateRequestApproval') !!}',
-            type: 'GET',
-            async: false,
-            success: function(response) {}
-          });
 
-          $.ajax({
-            url: '{!! route('stockrequests.insertIntoWFS') !!}',
-            type: 'GET',
-            async: false,
-            success: function(response) {}
-          });
-          
+      function WFS() {
+        $.ajax({
+          url: '{!! route('stockrequests.updateRequestApproval') !!}',
+          type: 'GET',
+          async: false,
+          success: function(response) {}
+        });
+
+        $.ajax({
+          url: '{!! route('stockrequests.insertIntoWFS') !!}',
+          type: 'GET',
+          async: false,
+          success: function(response) {}
+        });
+
       }
     </script>
 </body>

@@ -153,6 +153,24 @@ app.component(
     "approval_view-component",
     require("./components/approval/view.vue").default
 );
+app.component(
+    "approval_checkdetails-component",
+    require("./components/approval/checkdetails.vue").default
+);
+
+app.component(
+    "mcd_index-component",
+    require("./components/mcd/index.vue").default
+);
+app.component(
+    "mcd_view-component",
+    require("./components/mcd/view.vue").default
+);
+app.component(
+    "mcd_edit-component",
+    require("./components/mcd/edit.vue").default
+);
+
 app.component("DataTable", DataTable);
 app.component("Column", Column);
 app.component("Toolbar", Toolbar);

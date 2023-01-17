@@ -96,7 +96,7 @@ class StockRequestController extends Controller
             "token" => config('app.key'),
             "refno" => $createdRequest->id,
             "sourceapp" => "Online Stock Transfer Request",
-            "sourceurl" => config('app.url') . '/stockrequests/edit/' . $createdRequest->id,
+            "sourceurl" => config('app.url') . '/approvals/checkDetails/' . $createdRequest->id,
             "requestor" => auth()->user()->name,
             "department" => auth()->user()->dept,
             "email" => auth()->user()->email,
@@ -118,7 +118,7 @@ class StockRequestController extends Controller
     }
     public function updateRequestApproval()
     {
-        $stockRequests = StockRequest::where([['WFS_connection', 1], ['status', '<>', 'Approved'], ['active', 1]])->get();
+        $stockRequests = StockRequest::where([['WFS_connection', 1], ['status', 'Pending'], ['active', 1]])->get();
         $ids = "";
         foreach ($stockRequests as $stockRequest) {
             if ($ids == "") {
@@ -169,7 +169,8 @@ class StockRequestController extends Controller
                 'cost_code' => $request->cost_code,
                 'updated_by' => auth()->user()->username,
                 'status' => 'Pending',
-                'isSaved' => 1
+                'isSaved' => 1,
+                'WFS_connection' => 0
 
             ]);
             RequestedItem::where('requested_by', $request->requested_by)->update(['transaction_no' => $request->transaction_no]);

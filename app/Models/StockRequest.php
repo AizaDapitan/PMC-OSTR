@@ -13,10 +13,12 @@ class StockRequest extends Model implements AuditableContract
 
     protected $fillable = [
         'date_filed', 'time_filed', 'date_needed', 'dept', 'cost_code', 'remarks', 'requested_by',
-        'created_by', 'updated_by', 'deleted_at', 'deleted_by','status','WFS_connection','isSaved','active','transaction_no'
+        'created_by', 'updated_by', 'deleted_at', 'deleted_by','status','WFS_connection','isSaved','active','transaction_no',
+        'isReceived','received_by','received_at'
     ];
     protected $auditInclude = [
         'date_filed', 'time_filed', 'date_needed', 'dept', 'cost_code', 'remarks', 'requested_by',
-        'created_by', 'updated_by', 'deleted_at', 'deleted_by','status','WFS_connection','isSaved','active','transaction_no'
+        'created_by', 'updated_by', 'deleted_at', 'deleted_by','status','WFS_connection','isSaved','active','transaction_no',
+        'isReceived','received_by','received_at'
     ];
 }

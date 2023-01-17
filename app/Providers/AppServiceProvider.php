@@ -47,6 +47,7 @@ class AppServiceProvider extends ServiceProvider
                 $currentDateTime = new DateTime();
                 $unsaved = StockRequest::where([['isSaved', 0], ['active', 1], ['created_by', auth()->user()->username]])->count();
                 $approval = StockRequest::where([['isSaved', 1], ['active', 1], ['dept', auth()->user()->dept],['status','Pending']])->count();
+                $receiving = StockRequest::where([['isSaved', 1], ['active', 1], ['status','Approved']])->count();
                 if ($schedule) {
                     $datetime = $schedule['scheduled_date'] . ' ' . $schedule['scheduled_time'];
                     $datetime = new DateTime($datetime);
@@ -67,7 +68,8 @@ class AppServiceProvider extends ServiceProvider
                         'datetime',
                         'currentDateTime',
                         'unsaved',
-                        'approval'
+                        'approval',
+                        'receiving'
                     )
                 );
             }

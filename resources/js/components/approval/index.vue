@@ -124,25 +124,34 @@
                 ></Column>
                 <Column field="status" header="Status" :sortable="true">
                   <template #body="slotProps">
-                    <span
-                      v-if="slotProps.data.status == 'Approved'"
-                      class="badge badge-warning tx-uppercase"
-                      >Approved</span
-                    >
-                    <span
-                      v-else-if="slotProps.data.status == 'Received'"
-                      class="badge badge-info tx-uppercase"
-                      >Received</span
-                    >
-                    <span
-                      v-else-if="slotProps.data.status == 'Completed'"
-                      class="badge badge-success tx-uppercase"
-                      >Completed</span
-                    >
-                    <span v-else class="badge badge-danger tx-uppercase"
-                      >Pending</span
-                    >
-                  </template>
+                  <span
+                    v-if="slotProps.data.status.toLowerCase() == 'fully approved' && !slotProps.data.isReceived"
+                    class="badge badge-warning tx-uppercase"
+                    >Approved</span
+                  >
+                  <span
+                    v-else-if="slotProps.data.status.toLowerCase() == 'cancelled' && !slotProps.data.isReceived"
+                    class="badge badge-danger tx-uppercase"
+                    >Cancelled</span
+                  >
+                  <span
+                    v-else-if="
+                       slotProps.data.isReceived
+                    "
+                    class="badge badge-info tx-uppercase"
+                    >Received</span
+                  >
+                  <span
+                    v-else-if="
+                      slotProps.data.status.toLowerCase() == 'completed'  && !slotProps.data.isReceived
+                    "
+                    class="badge badge-success tx-uppercase"
+                    >Completed</span
+                  >
+                  <span v-else class="badge tx-uppercase"
+                    >Pending</span
+                  >
+                </template>
                 </Column>
                 <Column
                   :exportable="false"

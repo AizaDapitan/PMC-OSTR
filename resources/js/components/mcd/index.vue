@@ -12,7 +12,7 @@
         <nav aria-label="breadcrumb">
           <ol class="breadcrumb breadcrumb-style1 mg-b-10">
             <li class="breadcrumb-item" aria-current="page">OSTR</li>
-            <li class="breadcrumb-item" aria-current="page">Stock Request</li>
+            <li class="breadcrumb-item" aria-current="page">MCD Receiving</li>
             <li class="breadcrumb-item active" aria-current="page">
               Dashboard
             </li>
@@ -33,12 +33,6 @@
               icon="pi pi-upload"
               class="p-button-help p-button-sm mr-2"
               @click="exportCSV($event)"
-            />
-            <Button
-              label="New"
-              icon="pi pi-plus"
-              class="p-button-success p-button-sm mr-2"
-              @click="addNew()"
             />
           </template>
           <template #end>
@@ -96,7 +90,7 @@
                 field="cost_code"
                 header="Cost Code"
                 :sortable="true"
-                style="min-width: 11rem"
+                style="min-width: 10rem"
               ></Column>
               <Column
                 field="date_filed"
@@ -109,7 +103,7 @@
                 field="time_filed"
                 header="Time Requested"
                 :sortable="true"
-                style="min-width: 5rem"
+                style="min-width: 4rem"
               >
                 <template #body="slotProps">
                   <span>{{
@@ -161,7 +155,7 @@
               </Column>
               <Column
                 :exportable="false"
-                style="min-width: 11rem"
+                style="min-width: 5rem"
                 header="Actions"
               >
                 <template #body="slotProps">
@@ -172,27 +166,18 @@
                     @click="view(slotProps)"
                   />
                   <Button
-                    v-bind:title="editMsg"
-                    icon="pi pi-pencil"
-                    class="p-button-rounded p-button-success mr-2"
-                    @click="edit(slotProps)"
-                    :disabled="
-                      slotProps.data.status.toLowerCase() == 'fully approved' ||
-                      slotProps.data.status.toLowerCase() == 'completed' || 
-                      slotProps.data.isReceived 
-                    "
+                    v-bind:title="receiveMsg"
+                    icon="pi pi-arrow-circle-down"
+                    class="p-button-rounded p-button-warning mr-2"
+                    @click="receive(slotProps)"
+                    :disabled="slotProps.data.isReceived"
                   />
                   <Button
-                    v-bind:title="deleteMsg"
-                    icon="pi pi-trash"
+                    v-bind:title="editMsg"
+                    icon="pi pi-pencil"
                     class="p-button-rounded p-button-warning mr-2"
-                    @click="deleteRequest(slotProps)"
-                    :disabled="
-                      slotProps.data.status.toLowerCase() == 'fully approved' ||
-                      slotProps.data.status.toLowerCase() == 'completed' ||
-                      slotProps.data.isReceived ||
-                      !this.delete
-                    "
+                    @click="edit(slotProps)"
+                    :disabled="!slotProps.data.isReceived"
                   />
                 </template>
               </Column>
@@ -215,17 +200,16 @@
   ></toast>
   <ConfirmDialog></ConfirmDialog>
 </template>
-    <script>
+      <script>
 import { FilterMatchMode, FilterOperator } from "primevue/api";
 export default {
-  props: ["delete"],
   data() {
     return {
       requests: [],
       filters: null,
-      editMsg: "Edit Stock Request",
-      viewMsg: "View Stock Request",
-      deleteMsg: "Delete Stock Request",
+      viewMsg: "View Stock Transfer Request",
+      receiveMsg: "Receive Stock Transfer Request",
+      editMsg: "Update Stock Transfer Request",
       loading: true,
       form: {
         id: 0,
@@ -233,13 +217,12 @@ export default {
     };
   },
   created() {
-    console.log(this.delete);
     this.fetchRecord();
     this.initFilters();
   },
   methods: {
     async fetchRecord() {
-      const res = await this.getDataFromDB("get", "/stockrequests/getRequests");
+      const res = await this.getDataFromDB("get", "/mcds/getRequests");
       this.requests = res.data;
       this.loading = false;
     },
@@ -254,38 +237,35 @@ export default {
     exportCSV() {
       this.$refs.dt.exportCSV();
     },
-    edit(data) {
-      let src = data.data.id,
-        alt = data.data.id;
-      window.location.href = this.$env_Url + "/stockrequests/edit/" + alt;
-    },
+
     view(data) {
       let src = data.data.id,
         alt = data.data.id;
-      window.location.href = this.$env_Url + "/stockrequests/view/" + alt;
+      window.location.href = this.$env_Url + "/mcds/view/" + alt;
     },
-    addNew() {
-      window.location.href = this.$env_Url + "/stockrequests/create";
+    edit(data) {
+      let src = data.data.id,
+        alt = data.data.id;
+      window.location.href = this.$env_Url + "/mcds/edit/" + alt;
     },
-
-    deleteRequest(data) {
+    receive(data) {
       let src = data.data.id,
         alt = data.data.id;
       this.form.id = alt;
 
       this.$confirm.require({
-        message: "Do you want to delete this record?",
-        header: "Deactivate Confirmation",
+        message: "Do you want to receive this request?",
+        header: "Receive Confirmation",
         icon: "pi pi-info-circle",
         acceptClass: "p-button-danger",
         accept: async () => {
-          const res = await this.deleteRecord(
+          const res = await this.submit(
             "post",
-            "/stockrequests/delete",
+            "/mcds/receive",
             this.form
           );
           if (res.status === 200) {
-            this.rmessage();
+            this.recmessage();
             this.fetchRecord();
           } else {
             this.ermessage();

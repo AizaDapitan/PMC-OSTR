@@ -94,6 +94,14 @@ export default {
                 life: 3000,
             });
         },
+        async recmessage() {
+            this.$toast.add({
+                severity: "success",
+                summary: "Confirmed",
+                detail: "Requests received",
+                life: 3000,
+            });
+        },
         async ermessage(arrMessage) {
             this.$toast.removeAllGroups();
             for (const property in arrMessage) {

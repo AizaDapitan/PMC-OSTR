@@ -14,6 +14,12 @@ $data_result = sqlsrv_fetch_array(sqlsrv_query($conn, "select * from allowed_tra
 if (isset($data['token'])) {
 
     if ($data_result['token'] == $data['token']) {
+        $existData = sqlsrv_fetch_array(sqlsrv_query($conn, "select * from transactions where ref_req_no = '" . $data['refno'] . "' "));
+
+        if($existData){
+            sqlsrv_query($conn, "delete from transactions where ref_req_no = '" . $data['refno'] . "' ");
+            sqlsrv_query($conn, "delete from approval_status where transaction_id = '" . $existData['id'] . "' ");        
+        }
 
         $insert = "insert into transactions (ref_req_no,source_app,source_url,details,requestor,totalamount,converted_amount,department,transid,email,status,created_at,currency,purpose,name) values ('" . $data['refno'] . "','" . $data['sourceapp'] . "','" . $data['sourceurl'] . "','" . $transaction_type . "','" . $data['requestor'] . "', 0,0,'" . $data['department'] . "','" . $data['transid'] . "','" . $data['email'] . "','PENDING', GETDATE(),'PHP','" . $data['purpose'] . "','" . $data['name'] . "'); SELECT SCOPE_IDENTITY()";
         $result = sqlsrv_query($conn, $insert);
