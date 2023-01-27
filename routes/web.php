@@ -3,6 +3,7 @@
 use App\Http\Controllers\AccessRightsController;
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\ApprovalController;
+use App\Http\Controllers\IssuedItemController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\MCDController;
@@ -50,6 +51,7 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/dashboard', [StockRequestController::class, 'index'])->name('stockrequests.index');
             Route::get('/create', [StockRequestController::class, 'create'])->name('stockrequests.create');
             Route::post('/store', [StockRequestController::class, 'store'])->name('stockrequests.store');
+            Route::post('/submit', [StockRequestController::class, 'submit'])->name('stockrequests.submit');
             Route::get('/getRequests', [StockRequestController::class, 'getRequests'])->name('stockrequests.getRequests');
             Route::get('/edit/{id}', [StockRequestController::class, 'edit'])->name('stockrequests.edit');
             Route::post('/update', [StockRequestController::class, 'update'])->name('stockrequests.update');
@@ -85,6 +87,13 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/update', [RequestedItemController::class, 'update'])->name('requested_items.update');
         Route::post('/delete', [RequestedItemController::class, 'delete'])->name('requested_items.delete');
     });
+    Route::group(
+        ['prefix' => 'issuances'],
+        function () {
+            Route::post('/store', [IssuedItemController::class, 'store'])->name('issuances.store');
+            Route::post('/getIssuanceHistory', [IssuedItemController::class, 'getIssuanceHistory'])->name('issuances.getIssuanceHistory');
+        }
+    );
     Route::group(
         ['prefix' => 'products'],
         function () {

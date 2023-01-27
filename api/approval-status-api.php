@@ -8,7 +8,7 @@ header("Access-Control-Allow-Headers: *");
 
 
 $array_status = array();
-$data_result = sqlsrv_query($conn, "select * from transactions where ref_req_no in (" . $ids . ") and details = 'OSTR' ");
+$data_result = sqlsrv_query($conn, "select * from transactions where ref_req_no in (" . $ids . ") and details = 'OSTR' and status <> 'Pending'");
 
 while ($result = sqlsrv_fetch_array($data_result)) {
 

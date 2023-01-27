@@ -29,25 +29,13 @@
         </div>
       </ul>
     </div>
+    <div v-if="success" class="alert alert-success" role="success">
+      <b>Transaction Completed!</b> {{ successMsg }}
+      <!-- <div v-for="error in errors" :key="error.id"> -->
+      <!-- {{ }} -->
+      <!-- </div> -->
+    </div>
     <div class="row">
-      <!-- <div class="col-lg-12">
-        <div class="d-lg-flex justify-content-lg-end">
-          <div class="col-lg-3">
-            <div class="form-group">
-              <label for="transnumber">Transaction # </label>
-              <input
-                type="text"
-                class="form-control"
-                id="transnumber"
-                name="transnumber"
-                v-model="form.transnumber"
-                disabled="true"
-              />
-            </div>
-          </div>
-        </div>
-      </div> -->
-
       <div class="col-lg-6">
         <div class="row row-sm">
           <div class="col-lg-6">
@@ -248,19 +236,21 @@
         >
       </div>
       <div class="col-lg-6 d-flex justify-content-start justify-content-lg-end">
-        <!-- <button
-          type="reset"
-          class="btn btn-white tx-13 btn-uppercase mr-2 mb-2 ml-lg-1 mr-lg-0"
-          @click.prevent="reset"
-        >
-          <i data-feather="x-circle" class="mg-r-5"></i> Cancel
-        </button> -->
         <button
           type="submit"
           class="btn btn-primary tx-13 btn-uppercase mr-2 mb-2 ml-lg-1 mr-lg-0"
           @click.prevent="save"
+          :disabled="this.isSaved"
         >
           <i data-feather="save" class="mg-r-5"></i> Save
+        </button>
+        <button
+          type="submit"
+          class="btn btn-danger tx-13 btn-uppercase mr-2 mb-2 ml-lg-1 mr-lg-0"
+          @click.prevent="submitRequest"
+          :disabled="!this.isSaved"
+        >
+          <i data-feather="send" class="mg-r-5"></i> Submit
         </button>
       </div>
     </div>
@@ -290,9 +280,12 @@ export default {
       loading: true,
       items: [],
       errors_exist: false,
+      success: false,
       seconds: 0,
       errors: {},
+      successMsg: "",
       products: [],
+      isSaved: false,
       form: {
         id: 0,
         dept: "",
@@ -370,14 +363,51 @@ export default {
           }
         );
         if (res.status === 200) {
-          window.location.href = this.$env_Url + "/stockrequests/dashboard";
+          this.form.id = res.data.id;
+          this.form.transaction_no = res.data.transaction_no;
+
+          this.success = true;
+          this.successMsg = "Request successfully saved.";
+          this.isSaved = true;
         } else {
           this.errors_exist = true;
           this.errors = res.data.errors;
         }
       }
     },
+    async submitRequest() {
+      this.errors = {};
+      this.errors_exist = false;
+      if (this.items.length === 0) {
+        this.errors = {
+          error: ["Please add atleast 1 item!"],
+        };
+        this.errors_exist = true;
+      } else {
+        this.form.date_needed = document.getElementById("date-needed").value;
+        this.form.datefiled = document.getElementById("date-filed").value;
 
+        const res = await this.submit(
+          "post",
+          "/stockrequests/submit",
+          this.form,
+          {
+            headers: {
+              "Content-Type":
+                "multipart/form-data; charset=utf-8; boundary=" +
+                Math.random().toString().substr(2),
+            },
+          }
+        );
+        if (res.status === 200) {
+          this.success = true;
+          this.successMsg = "Request successfully submitted.";
+        } else {
+          this.errors_exist = true;
+          this.errors = res.data.errors;
+        }
+      }
+    },
     showDialog(data) {
       const dialogRef = this.$dialog.open(item, {
         props: {
@@ -442,29 +472,31 @@ export default {
       this.showDialog(data.data);
     },
     async autosave() {
-      this.seconds = this.seconds + 1;
-      if (this.seconds == 15) {
-        this.form.date_needed = document.getElementById("date-needed").value;
-        this.form.datefiled = document.getElementById("date-filed").value;
+      if (!this.isSaved) {
+        this.seconds = this.seconds + 1;
+        if (this.seconds == 15) {
+          this.form.date_needed = document.getElementById("date-needed").value;
+          this.form.datefiled = document.getElementById("date-filed").value;
 
-        const res = await this.submit(
-          "post",
-          "/stockrequests/autosave",
-          this.form,
-          {
-            headers: {
-              "Content-Type":
-                "multipart/form-data; charset=utf-8; boundary=" +
-                Math.random().toString().substr(2),
-            },
+          const res = await this.submit(
+            "post",
+            "/stockrequests/autosave",
+            this.form,
+            {
+              headers: {
+                "Content-Type":
+                  "multipart/form-data; charset=utf-8; boundary=" +
+                  Math.random().toString().substr(2),
+              },
+            }
+          );
+          if (res.status === 200) {
+            this.form.id = res.data.id;
+            this.form.transaction_no = res.data.transaction_no;
           }
-        );
-        if (res.status === 200) {
-          this.form.id = res.data.id;
-          this.form.transaction_no = res.data.transaction_no;
-        }
 
-        this.seconds = 0;
+          this.seconds = 0;
+        }
       }
     },
     tempInsert: function () {

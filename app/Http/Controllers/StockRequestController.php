@@ -60,8 +60,8 @@ class StockRequestController extends Controller
 
                 ]);
                 RequestedItem::where('requested_by', $request->requested_by)->update(['transaction_no' => $request->transaction_no]);
-
-                $this->createData($stockRequest);
+                return response()->json(['id' => $stockRequest->id, 'transaction_no' => $request->transaction_no]);
+                // $this->createData($stockRequest);
             } else {
                 $createdRequest = StockRequest::create([
                     'date_filed' => $request->date_filed,
@@ -75,15 +75,15 @@ class StockRequestController extends Controller
                     'status' => 'Pending',
                     'isSaved' => 1
 
+
                 ]);
 
                 $trans_no =  $request->date_filed . '-' . str_pad($createdRequest->id, 6, '0', STR_PAD_LEFT);
                 $createdRequest->update(['transaction_no' => $trans_no]);
                 RequestedItem::where('requested_by', $request->requested_by)->update(['transaction_no' => $trans_no]);
-
-                $this->createData($createdRequest);
+                return response()->json(['id' => $stockRequest->id, 'transaction_no' => $request->transaction_no]);
             }
-            return response()->json('success');
+            // return response()->json('success');
         } catch (Exception $e) {
             return response()->json(['errors' => $e->getMessage(), 500]);
         }
@@ -118,7 +118,7 @@ class StockRequestController extends Controller
     }
     public function updateRequestApproval()
     {
-        $stockRequests = StockRequest::where([['WFS_connection', 1], ['status', 'Pending'], ['active', 1]])->get();
+        $stockRequests = StockRequest::where([['WFS_connection', 1], ['status', 'Submitted'], ['active', 1]])->get();
         $ids = "";
         foreach ($stockRequests as $stockRequest) {
             if ($ids == "") {
@@ -140,7 +140,7 @@ class StockRequestController extends Controller
     }
     public function insertIntoWFS()
     {
-        $stockRequests = StockRequest::where('WFS_connection',0)->orWhereNull('WFS_connection')->where('active', 1)->get();
+        $stockRequests = StockRequest::where('WFS_connection', 0)->orWhereNull('WFS_connection')->where([['active', 1], ['status', 'Submitted']])->get();
         foreach ($stockRequests as $stockRequest) {
             $this->createData($stockRequest);
         };
@@ -174,6 +174,22 @@ class StockRequestController extends Controller
 
             ]);
             RequestedItem::where('requested_by', $request->requested_by)->update(['transaction_no' => $request->transaction_no]);
+            return response()->json('success');
+        } catch (Exception $e) {
+            return response()->json(['errors' => $e->getMessage(), 500]);
+        }
+    }
+    public function submit(CreateStockRequest $request)
+    {
+        try {
+            $stockRequest = StockRequest::find($request->id);
+            $stockRequest->update([
+                'updated_by' => auth()->user()->username,
+                'status' => 'Submitted',
+                'isSaved' => 1,
+
+            ]);
+            $this->createData($stockRequest);
             return response()->json('success');
         } catch (Exception $e) {
             return response()->json(['errors' => $e->getMessage(), 500]);

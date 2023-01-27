@@ -154,6 +154,13 @@
                     class="badge badge-success tx-uppercase"
                     >Completed</span
                   >
+                  <span
+                    v-else-if="
+                      slotProps.data.status.toLowerCase() == 'submitted'  && !slotProps.data.isReceived
+                    "
+                    class="badge badge-success tx-uppercase"
+                    >Submitted</span
+                  >
                   <span v-else class="badge tx-uppercase"
                     >Pending</span
                   >
@@ -179,6 +186,7 @@
                     :disabled="
                       slotProps.data.status.toLowerCase() == 'fully approved' ||
                       slotProps.data.status.toLowerCase() == 'completed' || 
+                      slotProps.data.status.toLowerCase() == 'submitted' || 
                       slotProps.data.isReceived 
                     "
                   />
@@ -189,6 +197,7 @@
                     @click="deleteRequest(slotProps)"
                     :disabled="
                       slotProps.data.status.toLowerCase() == 'fully approved' ||
+                      slotProps.data.status.toLowerCase() == 'submitted' || 
                       slotProps.data.status.toLowerCase() == 'completed' ||
                       slotProps.data.isReceived ||
                       !this.delete
