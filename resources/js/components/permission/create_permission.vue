@@ -36,19 +36,18 @@
     </div>
     <div class="row row-sm">
       <div class="col-lg-6">
-        <!-- <div class="form-group">
-          <label class="d-block">Status <i class="text-danger">*</i></label>
+        <div class="custom-control custom-switch mb-3">
           <input
             type="checkbox"
-            id="statusValue"
-            @click="storeValue(statusValue)"
-            checked
+            class="custom-control-input"
+            id="isActive"
+            name="isActive"
+            :checked="form.checked == 1"
           />
-          <span>&nbsp;</span>
-          <label for="statusValue">
-            <span>Active</span>
-          </label>
-        </div> -->
+          <label class="custom-control-label" for="isActive"
+            ><span class="pl-2">Publish</span></label
+          >
+        </div>
 
         <div class="form-group">
           <label class="d-block">Module <i class="text-danger">*</i></label>
@@ -114,6 +113,8 @@ export default {
       form: {
         description: "",
         status: false,
+        active: true,
+        checked:true,
       },
       modules: [],
     };
@@ -129,6 +130,8 @@ export default {
     },
 
     async createPermission() {
+      this.form.active = document.getElementById("isActive").checked;
+
       const res = await this.submit("post", "/permissions/store", this.form, {
         headers: {
           "Content-Type":

@@ -6,6 +6,8 @@ use App\Models\RequestedItem;
 use App\Models\StockRequest;
 use Illuminate\Http\Request;
 use App\Services\AccessRightService;
+use Carbon\Carbon;
+use Exception;
 
 class ApprovalController extends Controller
 {
@@ -23,9 +25,25 @@ class ApprovalController extends Controller
         }
         return view('approval.index');        
     }
-    public function getRequests()
+    public function getRequests(Request $request)
     {
-        $requests = StockRequest::where([['isSaved', 1], ['active', 1], ['dept', auth()->user()->dept]])->orderBy('id', 'desc')->get();
+        $currentMonth = Carbon::now()->month;
+
+        $firstDay = Carbon::createFromDate(null, $currentMonth, 1);
+        $lastDay = Carbon::createFromDate(null, $currentMonth, $firstDay->daysInMonth);
+
+        $dateFrom = $firstDay->toDateString();
+        $dateTo = $lastDay->toDateString();
+
+        if (isset($request->dateFrom)) {
+            $dateFrom = $request->dateFrom;
+        }
+        if (isset($request->dateTo)) {
+            $dateTo = $request->dateTo;
+        }
+        $requests = StockRequest::where([['isSaved', 1], ['active', 1],['status','Submitted'], ['dept', auth()->user()->dept]])
+        ->whereBetween('created_at', [$dateFrom . ' 00:00:00', $dateTo . ' 23:59:59'])
+        ->orderBy('id', 'desc')->get();
         return $requests;
     }
     public function view($id)
@@ -46,5 +64,17 @@ class ApprovalController extends Controller
     {
         $requested_items = RequestedItem::where('transaction_no', $request->transaction_no)->whereNull('deleted_at')->orderBy('id','desc')->get();
         return $requested_items;
+    }
+    public function cancel(Request $request)
+    {
+        $request->validate(['id' => 'required']);
+        try {
+            $item = StockRequest::find($request->id)->update([
+                'updated_by' => auth()->user()->username,
+                'status' => 'Cancelled',
+            ]);
+        } catch (Exception $e) {
+            return response()->json(['errors' => $e->getMessage(), 500]);
+        }
     }
 }

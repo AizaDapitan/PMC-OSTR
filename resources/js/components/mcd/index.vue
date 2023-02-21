@@ -34,6 +34,31 @@
               class="p-button-help p-button-sm mr-2"
               @click="exportCSV($event)"
             />
+            <div class="search-form mg-r-10" style="width: 200px">
+              <Calendar
+                id="icon"
+                v-model="form.dateFrom"
+                :showIcon="true"
+                v-tooltip="'Date From'"
+                pattern="dd/MM/yyyy"
+                autocomplete="off"
+              />
+            </div>
+            <div class="search-form mg-r-10" style="width: 200px">
+              <Calendar
+                id="icon2"
+                v-model="form.dateTo"
+                :showIcon="true"
+                v-tooltip="'Date To'"
+              />
+            </div>
+
+            <Button
+              icon="pi pi-search"
+              class="p-button-success p-button-sm mr-2"
+              v-tooltip="'Search'"
+              @click="fetchRecord()"
+            />
           </template>
           <template #end>
             <div class="search-form mg-r-10">
@@ -86,12 +111,12 @@
                 :sortable="true"
                 style="min-width: 11rem"
               ></Column>
-              <Column
+              <!-- <Column
                 field="cost_code"
                 header="Cost Code"
                 :sortable="true"
                 style="min-width: 10rem"
-              ></Column>
+              ></Column> -->
               <Column
                 field="date_filed"
                 header="Date Requested"
@@ -125,37 +150,40 @@
               <Column field="status" header="Status" :sortable="true">
                 <template #body="slotProps">
                   <span
-                    v-if="slotProps.data.status.toLowerCase() == 'fully approved' && !slotProps.data.isReceived"
+                    v-if="
+                      slotProps.data.status.toLowerCase() == 'fully approved' &&
+                      !slotProps.data.isReceived
+                    "
                     class="badge badge-warning tx-uppercase"
                     >Approved</span
                   >
                   <span
-                    v-else-if="slotProps.data.status.toLowerCase() == 'cancelled' && !slotProps.data.isReceived"
+                    v-else-if="
+                      slotProps.data.status.toLowerCase() == 'cancelled' &&
+                      !slotProps.data.isReceived
+                    "
                     class="badge badge-danger tx-uppercase"
                     >Cancelled</span
                   >
                   <span
-                    v-else-if="
-                       slotProps.data.isReceived
-                    "
+                    v-else-if="slotProps.data.isReceived"
                     class="badge badge-info tx-uppercase"
                     >Received</span
                   >
                   <span
                     v-else-if="
-                      slotProps.data.status.toLowerCase() == 'completed'  && !slotProps.data.isReceived
+                      slotProps.data.status.toLowerCase() == 'completed' &&
+                      !slotProps.data.isReceived
                     "
                     class="badge badge-success tx-uppercase"
                     >Completed</span
                   >
-                  <span v-else class="badge tx-uppercase"
-                    >Pending</span
-                  >
+                  <span v-else class="badge tx-uppercase">Pending</span>
                 </template>
               </Column>
               <Column
                 :exportable="false"
-                style="min-width: 5rem"
+                style="min-width: 15rem"
                 header="Actions"
               >
                 <template #body="slotProps">
@@ -213,19 +241,40 @@ export default {
       loading: true,
       form: {
         id: 0,
+        dateFrom: new Date(),
+        dateTo: new Date(),
       },
     };
   },
   created() {
+    const today = new Date();
+    this.form.dateFrom = new Date(today.getFullYear(),today.getMonth(),1);
+    this.form.dateTo =  new Date(today.getFullYear(),today.getMonth() + 1,0);
     this.fetchRecord();
     this.initFilters();
   },
   methods: {
     async fetchRecord() {
-      const res = await this.getDataFromDB("get", "/mcds/getRequests");
-      this.requests = res.data;
+      this.form.dateFrom = this.convert(this.form.dateFrom);
+      this.form.dateTo = this.convert(this.form.dateTo);
+      const res = await this.callApiwParam(
+        "post",
+        "/mcds/getRequests",
+        this.form
+      );
+      // this.requests = res.data;
+      this.requests = res.data.filter(function(el){ return el.completed == false;})
       this.loading = false;
     },
+    convert(string) {
+        return new Date(string)
+          .toLocaleString("en-us", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+          })
+          .replace(/(\d+)\/(\d+)\/(\d+)/, "$3-$1-$2");
+      },
     initFilters() {
       this.filters = {
         global: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -259,11 +308,7 @@ export default {
         icon: "pi pi-info-circle",
         acceptClass: "p-button-danger",
         accept: async () => {
-          const res = await this.submit(
-            "post",
-            "/mcds/receive",
-            this.form
-          );
+          const res = await this.submit("post", "/mcds/receive", this.form);
           if (res.status === 200) {
             this.recmessage();
             this.fetchRecord();

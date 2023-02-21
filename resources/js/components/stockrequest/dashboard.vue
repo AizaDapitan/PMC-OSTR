@@ -326,7 +326,7 @@ export default {
   },
   methods: {
     async fetchRecord() {
-      const res = await this.getDataFromDB("get", "/stockrequests/getRequests");
+      const res = await this.getDataFromDB("get", "/stockrequests/getRequests-dashboard");
       this.requests = res.data;
       this.pending = this.requests.filter((request) => {
         return request.status.toLowerCase() == "pending";

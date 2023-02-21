@@ -21,6 +21,9 @@ import DynamicDialog from 'primevue/dynamicdialog';
 import Tooltip from 'primevue/tooltip';
 import Calendar from 'primevue/calendar';
 import AutoComplete from 'primevue/autocomplete';
+import InputText from 'primevue/inputtext';
+import Dialog from 'primevue/dialog';
+
 // import 'primeicons/primeicons.css';
 
 const app = createApp({});
@@ -170,6 +173,24 @@ app.component(
     "mcd_edit-component",
     require("./components/mcd/edit.vue").default
 );
+app.component(
+    "mcd_completed-component",
+    require("./components/mcd/completed.vue").default
+);
+
+app.component(
+    "index_satellite-component",
+    require("./components/satellite/index_satellite.vue").default
+);
+app.component(
+    "create_satellite-component",
+    require("./components/satellite/create.vue").default
+);
+
+app.component(
+    "edit_satellite-component",
+    require("./components/satellite/edit.vue").default
+);
 
 app.component("DataTable", DataTable);
 app.component("Column", Column);
@@ -182,5 +203,8 @@ app.component("DynamicDialog", DynamicDialog);
 app.component("Dropdown", Dropdown);
 app.component("Calendar", Calendar);
 app.component("AutoComplete", AutoComplete);
+app.component("InputText", InputText);
+app.component("Dialog", Dialog);
+
 app.mount("#app");
 

@@ -11,6 +11,7 @@ use Exception;
 use GuzzleHttp\Promise\Create;
 use Illuminate\Http\Request;
 use App\Services\AccessRightService;
+use Symfony\Component\HttpKernel\Event\RequestEvent;
 
 class StockRequestController extends Controller
 {
@@ -56,10 +57,28 @@ class StockRequestController extends Controller
                     'remarks' => $request->remarks,
                     'cost_code' => $request->cost_code,
                     'status' => 'Pending',
-                    'isSaved' => 1
+                    'isSaved' => 1,
+                    'origin' => $request->origin,
 
                 ]);
-                RequestedItem::where('requested_by', $request->requested_by)->update(['transaction_no' => $request->transaction_no]);
+                // RequestedItem::where('requested_by', $request->requested_by)->update(['transaction_no' => $request->transaction_no]);
+                $requested_items = RequestedItem::where('transaction_no', $request->transaction_no);
+                $requested_items->delete();
+                foreach($request->items as $item)
+                {
+                    RequestedItem::create(
+                        [
+                            'stock_code' => $item['stock_code'],
+                            'description' => $item['description'],
+                            'uom' => $item['uom'],
+                            // 'available_qty' => $request->available_qty,
+                            'requested_qty' => $item['requested_qty'],
+                            'requested_by' => $request->requested_by,
+                            'created_by' => auth()->user()->username,
+                            'transaction_no' => $request->transaction_no,
+                        ]
+                    );
+                }
                 return response()->json(['id' => $stockRequest->id, 'transaction_no' => $request->transaction_no]);
                 // $this->createData($stockRequest);
             } else {
@@ -73,14 +92,30 @@ class StockRequestController extends Controller
                     'requested_by' => $request->requested_by,
                     'created_by' => auth()->user()->username,
                     'status' => 'Pending',
-                    'isSaved' => 1
-
-
+                    'isSaved' => 1,
+                    'origin' => $request->origin,
                 ]);
 
                 $trans_no =  $request->date_filed . '-' . str_pad($createdRequest->id, 6, '0', STR_PAD_LEFT);
                 $createdRequest->update(['transaction_no' => $trans_no]);
-                RequestedItem::where('requested_by', $request->requested_by)->update(['transaction_no' => $trans_no]);
+                $requested_items = RequestedItem::where('transaction_no', $request->trans_no);
+                $requested_items->delete();
+                foreach($request->items as $item)
+                {
+                    RequestedItem::create(
+                        [
+                            'stock_code' => $item['stock_code'],
+                            'description' => $item['description'],
+                            'uom' => $item['uom'],
+                            // 'available_qty' => $request->available_qty,
+                            'requested_qty' => $item['requested_qty'],
+                            'requested_by' => $request->requested_by,
+                            'created_by' => auth()->user()->username,
+                            'transaction_no' => $trans_no,
+                        ]
+                    );
+                }
+                // RequestedItem::where('requested_by', $request->requested_by)->update(['transaction_no' => $trans_no]);
                 return response()->json(['id' => $stockRequest->id, 'transaction_no' => $request->transaction_no]);
             }
             // return response()->json('success');
@@ -134,8 +169,10 @@ class StockRequestController extends Controller
             $WFSrequestArr = explode(':', $WFSrequest);
             $ref_req_no = $WFSrequestArr[0];
             $status = $WFSrequestArr[1];
-            $request = StockRequest::find($ref_req_no);
-            $request->update(['status' => $status]);
+            if ($status != "PENDING") {
+                $request = StockRequest::find($ref_req_no);
+                $request->update(['status' => $status]);
+            }
         }
     }
     public function insertIntoWFS()
@@ -145,9 +182,30 @@ class StockRequestController extends Controller
             $this->createData($stockRequest);
         };
     }
-    public function getRequests()
+    public function getRequests(Request $request)
     {
-        $requests = StockRequest::where([['isSaved', 1], ['active', 1], ['created_by', auth()->user()->username]])->orderBy('id', 'desc')->get();
+        $currentMonth = Carbon::now()->month;
+
+        $firstDay = Carbon::createFromDate(null, $currentMonth, 1);
+        $lastDay = Carbon::createFromDate(null, $currentMonth, $firstDay->daysInMonth);
+
+        $dateFrom = $firstDay->toDateString();
+        $dateTo = $lastDay->toDateString();
+        if (isset($request->dateFrom)) {
+            $dateFrom = $request->dateFrom;
+        }
+        if (isset($request->dateTo)) {
+            $dateTo = $request->dateTo;
+        }
+        $requests = StockRequest::where([['isSaved', 1], ['active', 1], ['created_by', auth()->user()->username]])
+            ->whereBetween('created_at', [$dateFrom . ' 00:00:00', $dateTo . ' 23:59:59'])
+            ->orderBy('id', 'desc')->get();
+        return $requests;
+    }
+    public function getRequests_dashboard()
+    {
+        $requests = StockRequest::where([['isSaved', 1], ['active', 1], ['created_by', auth()->user()->username]])
+            ->orderBy('id', 'desc')->get();
         return $requests;
     }
     public function edit($id)
@@ -170,10 +228,28 @@ class StockRequestController extends Controller
                 'updated_by' => auth()->user()->username,
                 'status' => 'Pending',
                 'isSaved' => 1,
-                'WFS_connection' => 0
+                'WFS_connection' => 0,
+                'origin' => $request->origin,
 
             ]);
-            RequestedItem::where('requested_by', $request->requested_by)->update(['transaction_no' => $request->transaction_no]);
+            $requested_items = RequestedItem::where('transaction_no', $request->transaction_no);
+                $requested_items->delete();
+                foreach($request->items as $item)
+                {
+                    RequestedItem::create(
+                        [
+                            'stock_code' => $item['stock_code'],
+                            'description' => $item['description'],
+                            'uom' => $item['uom'],
+                            // 'available_qty' => $request->available_qty,
+                            'requested_qty' => $item['requested_qty'],
+                            'requested_by' => $request->requested_by,
+                            'created_by' => auth()->user()->username,
+                            'transaction_no' => $request->transaction_no,
+                        ]
+                    );
+                }
+            // RequestedItem::where('requested_by', $request->requested_by)->update(['transaction_no' => $request->transaction_no]);
             return response()->json('success');
         } catch (Exception $e) {
             return response()->json(['errors' => $e->getMessage(), 500]);
@@ -228,7 +304,8 @@ class StockRequestController extends Controller
                     'date_needed' => $request->date_needed,
                     'remarks' => $request->remarks,
                     'cost_code' => $request->cost_code,
-                    'status' => 'Pending'
+                    'status' => 'Pending',
+                    'origin' => $request->origin,
 
                 ]);
                 RequestedItem::where('requested_by', $request->requested_by)->update(['transaction_no' => $request->transaction_no]);
@@ -243,7 +320,8 @@ class StockRequestController extends Controller
                     'remarks' => $request->remarks,
                     'requested_by' => $request->requested_by,
                     'created_by' => auth()->user()->username,
-                    'status' => 'Pending'
+                    'status' => 'Pending',
+                    'origin' => $request->origin,
 
                 ]);
 
@@ -256,9 +334,25 @@ class StockRequestController extends Controller
             return response()->json(['errors' => $e->getMessage(), 500]);
         }
     }
-    public function getRequestsUnsaved()
+    public function getRequestsUnsaved(Request $request)
     {
-        $requests = StockRequest::where([['isSaved', 0], ['active', 1], ['created_by', auth()->user()->username]])->orderBy('id', 'desc')->get();
+        $currentMonth = Carbon::now()->month;
+
+        $firstDay = Carbon::createFromDate(null, $currentMonth, 1);
+        $lastDay = Carbon::createFromDate(null, $currentMonth, $firstDay->daysInMonth);
+
+        $dateFrom = $firstDay->toDateString();
+        $dateTo = $lastDay->toDateString();
+
+        if (isset($request->dateFrom)) {
+            $dateFrom = $request->dateFrom;
+        }
+        if (isset($request->dateTo)) {
+            $dateTo = $request->dateTo;
+        }
+        $requests = StockRequest::where([['isSaved', 0], ['active', 1], ['created_by', auth()->user()->username]])
+        ->whereBetween('created_at', [$dateFrom . ' 00:00:00', $dateTo . ' 23:59:59'])
+        ->orderBy('id', 'desc')->get();
         return $requests;
     }
     public function unsavedDashboard()
@@ -270,4 +364,5 @@ class StockRequestController extends Controller
         $delete = $rolesPermissions['delete'];
         return view('stockrequest.unsaved', compact('delete'));
     }
+
 }

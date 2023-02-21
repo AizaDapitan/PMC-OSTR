@@ -2,15 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\UserRequest;
+use App\Models\Satellite;
 use Illuminate\Http\Request;
-use App\Models\Role;
-use App\Services\UserRightService;
-use Exception;
-use Illuminate\Support\Facades\Session;
 use App\Services\AccessRightService;
+use Exception;
 
-class RoleController extends Controller
+class SatelliteController extends Controller
 {
     protected $accessRightService;
 
@@ -21,33 +18,30 @@ class RoleController extends Controller
     }
     public function index()
     {
-        $rolesPermissions = $this->accessRightService->hasPermissions("Roles");
+        $rolesPermissions = $this->accessRightService->hasPermissions("Satellites");
 
         if (!$rolesPermissions['view']) {
             abort(401);
         }
-        $roles = Role::where('name','<>', 'ADMIN')->orderBy('name', 'asc')->get();
-        $roles = json_encode($roles);
-        return view('role.index', compact('roles'));
+        $satellites = Satellite::where('name','<>','MCD')->orderBy('name', 'asc')->get();
+        $satellites = json_encode($satellites);
+        return view('satellite.index', compact('satellites'));
     }
-
-    public function getRoles()
+    public function getSatellites()
     {
-        $roles = Role::where([['active', 1],['name','<>', 'ADMIN']])->OrderBy('name')->get();
+        $satellites = Satellite::where([['active', 1],['name','<>','MCD']])->OrderBy('name')->get();
 
-        return $roles;
+        return $satellites;
     }
-
     public function create()
     {
-        $rolesPermissions = $this->accessRightService->hasPermissions("Roles");
+        $rolesPermissions = $this->accessRightService->hasPermissions("Satellites");
 
         if (!$rolesPermissions['create']) {
             abort(401);
         }
-        return view('role.create');
+        return view('satellite.create');
     }
-
     public function store(Request $request)
     {
         $request->validate([
@@ -58,11 +52,10 @@ class RoleController extends Controller
 
         $created_at = \Carbon\Carbon::now();
         try {
-           Role::create([
+           Satellite::create([
                 'name' => strtoupper($request->name),
                 'description' => $request->description,
                 'active'    => $request->active,
-                'created_at' => $created_at,
                 'app'    => 'OSTR',
             ]);
             return response()->json('success');
@@ -70,18 +63,16 @@ class RoleController extends Controller
             return response()->json(['error' =>  $e->getMessage()], 500);
         }
     }
-
     public function edit($id)
     {
-        $rolesPermissions = $this->accessRightService->hasPermissions("Roles");
+        $rolesPermissions = $this->accessRightService->hasPermissions("Satellites");
 
         if (!$rolesPermissions['edit']) {
             abort(401);
         }
-        $role = Role::where('id', $id)->first();
-        return view('role.edit', compact('role'));
+        $satellite = Satellite::where('id', $id)->first();
+        return view('satellite.edit', compact('satellite'));
     }
-
     public function update(Request $request)
     {
         $request->validate([
@@ -91,7 +82,7 @@ class RoleController extends Controller
 
         $updated_at = \Carbon\Carbon::now();
         try {
-            $role = Role::find($request->id);
+            $role = Satellite::find($request->id);
 
             $data = [
                 'name' => strtoupper($request->name),
@@ -105,21 +96,5 @@ class RoleController extends Controller
         } catch (Exception $e) {
             return response()->json(['error' =>  $e->getMessage()], 500);
         }
-    }
-
-    public function destroy(Role $role)
-    {
-        //
-    }
-    public function rolesList(Role $role)
-    {
-        $roles = $role->where([['active', 1],['name','<>','ADMIN']])->get();
-        return $roles;
-    }
-
-    public function rolesList_selected(Role $role)
-    {
-        $roles = $role->where('active', 1)->where([['app', '=', 'CAMM']])->get();
-        return json_encode($roles);
     }
 }

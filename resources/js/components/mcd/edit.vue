@@ -140,7 +140,7 @@
             </div>
           </div>
 
-          <div class="col-lg-6">
+          <!-- <div class="col-lg-6">
             <div class="form-group">
               <label for="costcode"
                 >Cost Code<span class="text-danger" aria-required="true">
@@ -153,6 +153,21 @@
                 id="costcode"
                 name="costcode"
                 v-model="form.cost_code"
+                disabled="true"
+              />
+            </div>
+          </div> -->
+          <div class="col-lg-6">
+            <div class="form-group">
+              <label for="origin"
+                >Origin</label
+              >
+              <input
+                type="text"
+                class="form-control"
+                id="origin"
+                name="origin"
+                v-model="form.origin"
                 disabled="true"
               />
             </div>
@@ -179,7 +194,7 @@
         <div class="table-responsive-lg">
           <DataTable
             ref="dt"
-            :value="items"
+            :value="form.items"
             :paginator="true"
             :rows="10"
             stripedRows
@@ -188,9 +203,11 @@
             responsiveLayout="scroll"
             :loading="loading"
             currentPageReportTemplate="Showing {first} to {last} of {totalRecords}"
-            v-model:filters="filters"
-            filterDisplay="menu"
             rowIndexVar
+            editMode="row"
+            dataKey="id"
+            v-model:editingRows="editingRows"
+            @row-edit-save="onRowEditSave"
           >
             <template #empty> No record found. </template>
             <template #loading> Loading data. Please wait. </template>
@@ -207,18 +224,44 @@
             <Column field="description" header="Description"></Column>
             <Column field="requested_qty" header="Requested Qty."></Column>
             <Column field="issued_qty" header="Issued Qty."></Column>
-            <Column header="Balance"> <template #body="slotProps"> {{ slotProps.data.requested_qty - slotProps.data.issued_qty  }}</template></Column>
+            <Column header="Balance">
+              <template #body="slotProps">
+                {{
+                  slotProps.data.requested_qty - slotProps.data.issued_qty
+                }}</template
+              ></Column
+            >
+            <Column
+              header="Issuance Qty."
+              field="issuance_qty"
+              style="color: red"
+            >
+              <template #editor="{ data, field }">
+                <InputText
+                  type="number"
+                  v-model="data[field]"
+                  autofocus
+                  min="0"
+                />
+              </template>
+            </Column>
+
+            <Column
+              :rowEditor="true"
+              style="width: 10%; min-width: 8rem"
+              bodyStyle="text-align:center"
+            ></Column>
             <Column
               :exportable="false"
               style="min-width: 8rem"
               header="Actions"
             >
               <template #body="slotProps">
-                <Button
+                <!-- <Button
                   icon="pi pi-plus"
                   class="p-button-rounded p-button-success mr-2"
                   @click="showDialog(slotProps)"
-                />
+                /> -->
                 <Button
                   icon="pi pi-file"
                   class="p-button-rounded p-button-info mr-2"
@@ -239,6 +282,15 @@
         <a :href="dashboard" class="btn btn-white tx-13 btn-uppercase"
           ><i data-feather="arrow-left" class="mg-r-5"></i> Back to Dashboard</a
         >
+      </div>
+      <div class="col-lg-6 d-flex justify-content-start justify-content-lg-end">
+        <button
+          type="submit"
+          class="btn btn-primary tx-13 btn-uppercase mr-2 mb-2 ml-lg-1 mr-lg-0"
+          @click.prevent="saveItem"
+        >
+          <i data-feather="save" class="mg-r-5"></i> Save
+        </button>
       </div>
     </div>
 
@@ -266,7 +318,10 @@ export default {
     return {
       dashboard: this.$env_Url + "/mcds/dashboard",
       loading: true,
-      items: [],
+      columns: null,
+      errors_exist: false,
+      errors: {},
+      editingRows: [],
       form: {
         id: this.request.id,
         dept: this.request.dept,
@@ -277,13 +332,16 @@ export default {
         remarks: this.request.remarks,
         requested_by: this.request.requested_by,
         transaction_no: this.request.transaction_no,
+        items: [],
+        origin : this.request.origin,
       },
     };
   },
   created() {
-    this.fetchItems();
+    this.columns = [{ field: "issuance_qty", header: "Issuance Qty." }];
   },
   mounted() {
+    this.fetchItems();
     document.getElementById("date-needed").value = this.request.date_needed;
     document.getElementById("date-filed").value = this.request.date_filed;
     if (this.request.time_filed != null) {
@@ -298,7 +356,9 @@ export default {
         "/requested_items/getRequestedItemsSaved",
         this.form
       );
-      this.items = res.data;
+      this.form.items = res.data;
+
+      this.form.items.forEach((obj) => (obj.issuance_qty = ""));
       this.loading = false;
     },
     showDialog(data) {
@@ -350,7 +410,97 @@ export default {
         },
       });
     },
+    onCellEditComplete(event) {
+      let { data, newValue, field } = event;
+      var error = "";
+      var balance = 0;
+      if (this.isPositiveInteger(newValue)) {
+        data[field] = newValue;
+      } else {
+        if (newValue.trim().length > 0) {
+          error = "Negative Value: Item/s Issuance must be greater than 0!";
+          this.singleermessage(error);
+          data[field] = "";
+          event.preventDefault();
+        } else {
+          event.preventDefault();
+        }
+      }
+      if (newValue.trim().length > 0) {
+        data[field] = newValue;
+      } else {
+        event.preventDefault();
+      }
+      if (data["requested_qty"] - data["issued_qty"] < data["issuance_qty"]) {
+        balance = data["requested_qty"] - data["issued_qty"];
+        error = "Overissue: Current balance is item/s " + balance + " only!";
+        this.singleermessage(error);
+        data[field] = "";
+        event.preventDefault();
+      }
+
+      // this.form.items[field] = data[field];
+      // console.log(this.form.items);
+    },
+
+    isPositiveInteger(val) {
+      let str = String(val);
+      str = str.trim();
+      if (!str) {
+        return false;
+      }
+      str = str.replace(/^0+/, "") || "0";
+      var n = Math.floor(Number(str));
+      return n !== Infinity && String(n) === str && n >= 0;
+    },
+    async saveItem() {
+      const res = await this.submit("post", "/issuances/store", this.form, {
+        headers: {
+          "Content-Type":
+            "multipart/form-data; charset=utf-8; boundary=" +
+            Math.random().toString().substr(2),
+        },
+      });
+      if (res.status === 200) {
+        window.location.href = this.$env_Url + "/mcds/dashboard";
+      } else {
+        this.errors_exist = true;
+        this.errors = res.data.errors;
+      }
+    },
+    onRowEditSave(event) {
+      let { newData, data, index } = event;
+      var error = "";
+      var balance = 0;
+
+      balance = newData.requested_qty - newData.issued_qty;
+      if (newData.issuance_qty == 0 || newData.issuance_qty.length == 0) {
+        newData.issuance_qty = "";
+      } else if (balance == 0) {
+        error =
+          "Fully Issued: Maximum issuance quantity meet!"
+        this.singleermessage(error);
+        newData.issuance_qty = "";
+      } else if (balance < newData.issuance_qty) {
+        error =
+          "Overissue: Maximum issuance quantity is " +
+          balance +
+          newData.uom +
+          "/s only!";
+        this.singleermessage(error);
+        newData.issuance_qty = "";
+      }
+      if (error == "") {
+        this.form.items[index] = newData;
+      }
+    },
   },
 };
 </script>
+<style lang="scss" scoped>
+::v-deep(.editable-cells-table td.p-cell-editing) {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+</style>
       

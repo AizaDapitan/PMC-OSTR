@@ -72,8 +72,8 @@ class PermissionController extends Controller
         try {
             $permission = Permission::create([
                 'module_type' => $request->module_type,
+                'active'    => $request->active,
                 'description' => $request->description,
-                'active' => 1,
                 'created_at' => $created_at
             ]);
             return response()->json('success');

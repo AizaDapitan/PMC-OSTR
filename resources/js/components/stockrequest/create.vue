@@ -128,7 +128,7 @@
             </div>
           </div>
 
-          <div class="col-lg-6">
+          <!-- <div class="col-lg-6">
             <div class="form-group">
               <label for="costcode"
                 >Cost Code<span class="text-danger" aria-required="true">
@@ -142,6 +142,25 @@
                 name="costcode"
                 v-model="form.cost_code"
               />
+            </div>
+          </div> -->
+          <div class="col-lg-6">
+            <div class="form-group">
+              <label for="costcode"
+                >Origin<span class="text-danger" aria-required="true">
+                  *
+                </span></label
+              >
+              <select class="custom-select" @change="getData($event)">
+                <option  selected>MCD</option>
+                <option
+                  v-for="satellite in satellites"
+                  :key="satellite.name"
+                  :value="satellite.name"
+                >
+                  {{ satellite.name }}
+                </option>
+              </select>
             </div>
           </div>
         </div>
@@ -161,23 +180,12 @@
       </div>
     </div>
     <div class="row row-xs">
-      <div class="col-lg-6 d-flex justify-content-start">
-        <button
-          class="btn btn-primary tx-13 btn-uppercase mr-2 mb-2 ml-lg-1 mr-lg-0"
-          @click="showDialog"
-        >
-          <i data-feather="plus" class="mg-r-5"></i> Add Item
-        </button>
-      </div>
       <div class="col-lg-12">
         <div class="table-responsive-lg">
           <DataTable
             ref="dt"
-            :value="items"
-            :paginator="true"
-            :rows="10"
+            :value="form.items"
             stripedRows
-            paginatorTemplate="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
             :rowsPerPageOptions="[10, 20, 50]"
             responsiveLayout="scroll"
             :loading="loading"
@@ -196,9 +204,13 @@
             >
             <Column field="id" hidden="true"></Column>
             <Column field="stock_code" header="Stock Code"></Column>
-            <Column field="available_qty" header="Available Qty."></Column>
+            <!-- <Column field="available_qty" header="Available Qty."></Column> -->
             <Column field="uom" header="UoM"></Column>
-            <Column field="description" header="Description"></Column>
+            <Column
+              field="description"
+              header="Description"
+              style="min-width: 12rem"
+            ></Column>
             <Column field="requested_qty" header="Requested Qty."></Column>
 
             <Column
@@ -207,12 +219,12 @@
               header="Actions"
             >
               <template #body="slotProps">
-                <Button
+                <!-- <Button
                   v-bind:title="edititem"
                   icon="pi pi-pencil"
                   class="p-button-rounded p-button-success mr-2"
                   @click="editItem(slotProps)"
-                />
+                /> -->
                 <Button
                   v-bind:title="deleteitem"
                   icon="pi pi-trash"
@@ -222,6 +234,81 @@
               </template>
             </Column>
           </DataTable>
+        </div>
+      </div>
+
+      <div class="col-lg-12" style="margin-top: 8px">
+        <div class="row row-sm">
+          <div class="col-lg-3">
+            <div class="form-group">
+              <AutoComplete
+                v-model="selectedProduct_stock_code"
+                :suggestions="filteredProducts"
+                @complete="searchProduct($event, 'stock_code')"
+                style="width: 100%; line-height: 0.5"
+                inputStyle="width:100%"
+                field="stock_code"
+                id="stock_code"
+                @item-select="onChange($event, 'stock_code')"
+              />
+            </div>
+          </div>
+          <div class="col-lg-1">
+            <div class="form-group">
+              <input
+                type="text"
+                class="form-control"
+                id="uom"
+                name="uom"
+                placeholder="Uom"
+                disabled="true"
+              />
+            </div>
+          </div>
+          <div class="col-lg-4">
+            <div class="form-group">
+              <AutoComplete
+                v-model="selectedProduct_desc"
+                :suggestions="filteredProducts"
+                @complete="searchProduct($event, 'description')"
+                style="width: 100%; line-height: 0.5"
+                inputStyle="width:100%"
+                field="description"
+                id="description"
+                @item-select="onChange($event, 'description')"
+              />
+            </div>
+          </div>
+          <div class="col-lg-2">
+            <div class="form-group">
+              <input
+                type="number"
+                class="form-control"
+                id="requested_qty"
+                name="requested_qty"
+                placeholder="Requested Qty."
+                min="0"
+              />
+            </div>
+          </div>
+          <div class="col-lg-2">
+            <div class="form-group">
+              <button
+                class="
+                  btn btn-primary
+                  tx-13
+                  btn-uppercase
+                  mr-2
+                  mb-2
+                  ml-lg-1
+                  mr-lg-0
+                "
+                @click="addItem"
+              >
+                <i data-feather="plus" class="mg-r-5"></i> Add Item
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -267,6 +354,20 @@
   ></toast>
   <DynamicDialog />
   <ConfirmDialog></ConfirmDialog>
+  <Dialog
+    header="Error"
+    v-model:visible="displayError"
+    :style="{ width: '350px' }"
+    :modal="true"
+  >
+    <div class="confirmation-content">
+      <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
+      <span>{{ this.errMsg }}</span>
+    </div>
+    <template #footer>
+      <Button label="Ok" @click="closeModal" class="p-button-text" autofocus />
+    </template>
+  </Dialog>
 </template>
   <script>
 import item from "../../components/item/item";
@@ -278,7 +379,6 @@ export default {
     return {
       dashboard: this.$env_Url + "/stockrequests/dashboard",
       loading: true,
-      items: [],
       errors_exist: false,
       success: false,
       seconds: 0,
@@ -286,6 +386,12 @@ export default {
       successMsg: "",
       products: [],
       isSaved: false,
+      filteredProducts: null,
+      selectedProduct_desc: null,
+      selectedProduct_stock_code: null,
+      displayError: false,
+      errMsg: "",
+      satellites : [],
       form: {
         id: 0,
         dept: "",
@@ -297,6 +403,8 @@ export default {
         requested_by: "",
         itemID: "",
         transaction_no: "",
+        items: [],
+        origin: "MCD",
       },
     };
   },
@@ -317,6 +425,8 @@ export default {
     this.form.requested_by =
       this.user.dept + "_" + this.user.username + "_" + today + " " + time;
     this.form.dept = this.user.dept;
+    
+    this.fetchSatellites();
   },
   mounted() {
     this.tempInsert();
@@ -329,7 +439,7 @@ export default {
         "/requested_items/getRequestedItems",
         this.form
       );
-      this.items = res.data;
+      // this.items = res.data;
     },
     async fetchPublishedProduct() {
       const res = await this.getDataFromDB(
@@ -338,10 +448,17 @@ export default {
       );
       this.products = res.data;
     },
+    async fetchSatellites() {
+      const res = await this.getDataFromDB(
+        "get",
+        "/satellites/getSatellites"
+      );
+      this.satellites = res.data;
+    },
     async save() {
       this.errors = {};
       this.errors_exist = false;
-      if (this.items.length === 0) {
+      if (this.form.items.length === 0) {
         this.errors = {
           error: ["Please add atleast 1 item!"],
         };
@@ -378,7 +495,7 @@ export default {
     async submitRequest() {
       this.errors = {};
       this.errors_exist = false;
-      if (this.items.length === 0) {
+      if (this.form.items.length === 0) {
         this.errors = {
           error: ["Please add atleast 1 item!"],
         };
@@ -400,8 +517,9 @@ export default {
           }
         );
         if (res.status === 200) {
-          this.success = true;
-          this.successMsg = "Request successfully submitted.";
+          // this.success = true;
+          // this.successMsg = "Request successfully submitted.";
+          window.location.href = this.$env_Url + "/stockrequests/dashboard";
         } else {
           this.errors_exist = true;
           this.errors = res.data.errors;
@@ -442,9 +560,9 @@ export default {
       this.form.remarks = "";
     },
     deleteItem(data) {
-      let src = data.data.id,
-        alt = data.data.id;
-      this.form.itemID = alt;
+      // let src = data.data.id,
+      //   alt = data.data.id;
+      // this.form.itemID = alt;
 
       this.$confirm.require({
         message: "Do you want to delete this item?",
@@ -452,19 +570,25 @@ export default {
         icon: "pi pi-info-circle",
         acceptClass: "p-button-danger",
         accept: async () => {
-          const res = await this.deleteRecord(
-            "post",
-            "/requested_items/delete",
-            {
-              id: data.data.id,
-            }
-          );
-          if (res.status === 200) {
-            this.rmessage();
-            this.fetchItems();
-          } else {
-            this.ermessage();
-          }
+          // const res = await this.deleteRecord(
+          //   "post",
+          //   "/requested_items/delete",
+          //   {
+          //     id: data.data.id,
+          //   }
+          // );
+          // if (res.status === 200) {
+          //   this.rmessage();
+          //   this.fetchItems();
+          // } else {
+          //   this.ermessage();
+          // }
+
+          // this.form.items = this.form.items.filter(
+          //   (obj) => obj.length != data.index
+          // );
+          this.form.items.splice(data.index, 1);
+          this.isSaved = false;
         },
       });
     },
@@ -504,7 +628,107 @@ export default {
         this.autosave();
       }, 1000);
     },
+    searchProduct(event, field) {
+      setTimeout(() => {
+        if (!event.query.trim().length) {
+          this.filteredDescription = [...this.products];
+        } else {
+          this.filteredProducts = this.products.filter((product) => {
+            if (field == "description") {
+              return product.description
+                .toLowerCase()
+                .startsWith(event.query.toLowerCase());
+            } else {
+              return product.stock_code
+                .toLowerCase()
+                .startsWith(event.query.toLowerCase());
+            }
+          });
+        }
+      }, 250);
+    },
+    onChange(event, field) {
+      if (field == "description") {
+        document.getElementById("stock_code").value =
+          this.selectedProduct_desc.stock_code;
+        document.getElementById("description").value =
+          this.selectedProduct_desc.description;
+        document.getElementById("uom").value = this.selectedProduct_desc.uom;
+      } else {
+        document.getElementById("stock_code").value =
+          this.selectedProduct_stock_code.stock_code;
+        document.getElementById("description").value =
+          this.selectedProduct_stock_code.description;
+        document.getElementById("uom").value =
+          this.selectedProduct_stock_code.uom;
+      }
+    },
+    addItem() {
+      var error = "";
+      if (document.getElementById("uom").value == "") {
+        error = "Required Field: Item not found!";
+        this.singleermessage(error);
+      } else if (document.getElementById("stock_code").value == "") {
+        error = "Required Field: Stock Code is required!";
+        this.singleermessage(error);
+      } else if (document.getElementById("description").value == "") {
+        error = "Required Field: Description is required!";
+        this.singleermessage(error);
+      } else if (
+        document.getElementById("requested_qty").value == "" ||
+        document.getElementById("requested_qty").value == 0
+      ) {
+        error = "Required Field: Requested Qty. is required!";
+        this.singleermessage(error);
+      }
+
+      if (error == "") {
+        const obj = {
+          id: this.form.items.length,
+          stock_code: document.getElementById("stock_code").value,
+          description: document.getElementById("description").value,
+          uom: document.getElementById("uom").value,
+          requested_qty: document.getElementById("requested_qty").value,
+        };
+        this.form.items.push(obj);
+
+        document.getElementById("stock_code").value = "";
+        document.getElementById("description").value = "";
+        document.getElementById("uom").value = "";
+        document.getElementById("requested_qty").value = "";
+
+        this.filteredProducts = null;
+        this.selectedProduct_desc = null;
+        this.selectedProduct_stock_code = null;
+        this.isSaved = false;
+      }
+    },
+    closeModal() {
+      this.displayError = false;
+    },
+    getData(event) {
+      this.form.origin = event.target.value;
+    },
   },
 };
 </script>
-  
+<style scoped lang="scss">
+// .p-button {
+//   margin: 0.3rem 0.5rem;
+//   min-width: 10rem;
+// }
+
+p {
+  margin: 0;
+}
+
+.confirmation-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.p-dialog .p-button {
+  min-width: 6rem;
+}
+</style>

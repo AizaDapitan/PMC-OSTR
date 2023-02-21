@@ -46,7 +46,7 @@ class AppServiceProvider extends ServiceProvider
                 $datetime = new DateTime();
                 $currentDateTime = new DateTime();
                 $unsaved = StockRequest::where([['isSaved', 0], ['active', 1], ['created_by', auth()->user()->username]])->count();
-                $approval = StockRequest::where([['isSaved', 1], ['active', 1], ['dept', auth()->user()->dept],['status','Pending']])->count();
+                $approval = StockRequest::where([['isSaved', 1], ['active', 1], ['dept', auth()->user()->dept],['status','submitted']])->count();
                 $receiving = StockRequest::where([['isReceived' , null ], ['active', 1], ['status','fully Approved']])->count();
                 if ($schedule) {
                     $datetime = $schedule['scheduled_date'] . ' ' . $schedule['scheduled_time'];

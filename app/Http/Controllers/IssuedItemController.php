@@ -10,23 +10,23 @@ class IssuedItemController extends Controller
 {
     public function store(Request $request)
     {
-        $request->validate(
-            [
-                'issuance_qty' => 'required',
-            ]
-        );  
         try {
-            $balance = $request->balance - $request->issuance_qty;
-            IssuedItem::create(
-                [
-                    'item_id' => $request->item_id,
-                    'item_code' => $request->item_code,
-                    'issuance_qty' => $request->issuance_qty,
-                    'balance' =>  $balance,
-                    'received_by' => $request->received_by,
-                    'issued_by' => auth()->user()->username,
-                ]
-            );
+            foreach ($request->items as $item)
+                if ($item['issuance_qty'] != null || $item['issuance_qty'] != 0) {
+                    $pre_balance = $item['requested_qty'] - $item['issued_qty'];
+                    $post_balance = $pre_balance- $item['issuance_qty'];
+                    IssuedItem::create(
+                        [
+                            'item_id' => $item['id'],
+                            'item_code' => $item['stock_code'],
+                            'issuance_qty' => $item['issuance_qty'],
+                            'balance' => $post_balance,
+                            'received_by' => $request->requested_by,
+                            'issued_by' => auth()->user()->username,
+                        ]
+                    );
+                }
+
             return response()->json('success');
         } catch (Exception $e) {
             return response()->json(['errors' => $e->getMessage(), 500]);

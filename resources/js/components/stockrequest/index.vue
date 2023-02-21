@@ -40,6 +40,31 @@
               class="p-button-success p-button-sm mr-2"
               @click="addNew()"
             />
+            <div class="search-form mg-r-10" style="width: 200px">
+              <Calendar
+                id="icon"
+                v-model="form.dateFrom"
+                :showIcon="true"
+                v-tooltip="'Date From'"
+                pattern="dd/MM/yyyy"
+                autocomplete="off"
+              />
+            </div>
+            <div class="search-form mg-r-10" style="width: 200px">
+              <Calendar
+                id="icon2"
+                v-model="form.dateTo"
+                :showIcon="true"
+                v-tooltip="'Date To'"
+              />
+            </div>
+
+            <Button
+              icon="pi pi-search"
+              class="p-button-success p-button-sm mr-2"
+              v-tooltip="'Search'"
+              @click="fetchRecord()"
+            />
           </template>
           <template #end>
             <div class="search-form mg-r-10">
@@ -238,20 +263,35 @@ export default {
       loading: true,
       form: {
         id: 0,
+        dateFrom: new Date(),
+        dateTo: new Date(),
       },
     };
   },
   created() {
-    console.log(this.delete);
+    const today = new Date();
+    this.form.dateFrom = new Date(today.getFullYear(),today.getMonth(),1);
+    this.form.dateTo =  new Date(today.getFullYear(),today.getMonth() + 1,0);
     this.fetchRecord();
     this.initFilters();
   },
   methods: {
     async fetchRecord() {
-      const res = await this.getDataFromDB("get", "/stockrequests/getRequests");
+      this.form.dateFrom = this.convert(this.form.dateFrom);
+      this.form.dateTo = this.convert(this.form.dateTo);
+      const res = await this.callApiwParam("post", "/stockrequests/getRequests", this.form);
       this.requests = res.data;
       this.loading = false;
     },
+    convert(string) {
+        return new Date(string)
+          .toLocaleString("en-us", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+          })
+          .replace(/(\d+)\/(\d+)\/(\d+)/, "$3-$1-$2");
+      },
     initFilters() {
       this.filters = {
         global: { value: null, matchMode: FilterMatchMode.CONTAINS },

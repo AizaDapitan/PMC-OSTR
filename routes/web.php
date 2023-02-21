@@ -12,6 +12,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RequestedItemController;
+use App\Http\Controllers\SatelliteController;
 use App\Http\Controllers\StockRequestController;
 use App\Http\Controllers\UserController;
 use Symfony\Component\HttpKernel\DataCollector\RouterDataCollector;
@@ -52,13 +53,14 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/create', [StockRequestController::class, 'create'])->name('stockrequests.create');
             Route::post('/store', [StockRequestController::class, 'store'])->name('stockrequests.store');
             Route::post('/submit', [StockRequestController::class, 'submit'])->name('stockrequests.submit');
-            Route::get('/getRequests', [StockRequestController::class, 'getRequests'])->name('stockrequests.getRequests');
+            Route::post('/getRequests', [StockRequestController::class, 'getRequests'])->name('stockrequests.getRequests');
+            Route::get('/getRequests-dashboard', [StockRequestController::class, 'getRequests_dashboard'])->name('stockrequests.getRequests_dashboard');
             Route::get('/edit/{id}', [StockRequestController::class, 'edit'])->name('stockrequests.edit');
             Route::post('/update', [StockRequestController::class, 'update'])->name('stockrequests.update');
             Route::get('/view/{id}', [StockRequestController::class, 'view'])->name('stockrequests.view');
             Route::post('/delete', [StockRequestController::class, 'delete'])->name('stockrequests.delete');
             Route::post('/autosave', [StockRequestController::class, 'autosave'])->name('stockrequests.autosave');
-            Route::get('/getRequestsUnsaved', [StockRequestController::class, 'getRequestsUnsaved'])->name('stockrequests.getRequestsUnsaved');
+            Route::post('/getRequestsUnsaved', [StockRequestController::class, 'getRequestsUnsaved'])->name('stockrequests.getRequestsUnsaved');
             Route::get('/unsaved-dashboard', [StockRequestController::class, 'unsavedDashboard'])->name('stockrequests.unsavedDashboard');
             Route::get('/updateRequestApproval', [StockRequestController::class, 'updateRequestApproval'])->name('stockrequests.updateRequestApproval');
             Route::get('/insertIntoWFS', [StockRequestController::class, 'insertIntoWFS'])->name('stockrequests.insertIntoWFS');
@@ -66,17 +68,20 @@ Route::middleware(['auth'])->group(function () {
     );
     Route::group(['prefix' => 'approvals'], function () {
         Route::get('/dashboard', [ApprovalController::class, 'index'])->name('approvals.index');
-        Route::get('/getRequests', [ApprovalController::class, 'getRequests'])->name('approvals.getRequests');
+        Route::post('/getRequests', [ApprovalController::class, 'getRequests'])->name('approvals.getRequests');
         Route::get('/view/{id}', [ApprovalController::class, 'view'])->name('approvals.view');
+        Route::post('/cancel', [ApprovalController::class, 'cancel'])->name('approvals.cancel');
     });
     Route::group(
         ['prefix' => 'mcds'],
         function () {
             Route::get('/dashboard', [MCDController::class, 'index'])->name('mcds.index');
-            Route::get('/getRequests', [MCDController::class, 'getRequests'])->name('mcds.getRequests');
+            Route::post('/getRequests', [MCDController::class, 'getRequests'])->name('mcds.getRequests');
             Route::post('/receive', [MCDController::class, 'receive'])->name('mcds.receive');
             Route::get('/view/{id}', [MCDController::class, 'view'])->name('mcds.view');
             Route::get('/edit/{id}', [MCDController::class, 'edit'])->name('mcds.edit');
+            Route::get('/completed-dashboard', [MCDController::class, 'completed'])->name('mcds.completed');
+
         }
     );
 
@@ -155,6 +160,18 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/update', [PermissionController::class, 'update'])->name("permissions.update");
             Route::get('/modulesList', [PermissionController::class, 'modulesList'])->name("permissions.list");
             Route::get('/getPermission_selected', [PermissionController::class, 'getPermission_selected'])->name("permissions.getPermission_selected");
+        }
+    );
+      // Satellite Controller
+      Route::group(
+        ['prefix' => 'satellites'],
+        function () {
+            Route::get('/dashboard', [SatelliteController::class, 'index'])->name("satellites.index");
+            Route::get('/create', [SatelliteController::class, 'create'])->name("satellites.create");
+            Route::post('/store', [SatelliteController::class, 'store'])->name("satellites.store");
+            Route::get('/getSatellites', [SatelliteController::class, 'getSatellites'])->name("satellites.getSatellites");
+            Route::get('/edit/{id}', [SatelliteController::class, 'edit'])->name("satellites.edit");
+            Route::post('/update', [SatelliteController::class, 'update'])->name("satellites.update");
         }
     );
     // Report Controller

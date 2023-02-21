@@ -215,13 +215,13 @@
   
       <hr class="mg-t-30 mg-b-30" />
   
-      <div class="row flex-column-reverse flex-lg-row">
+      <!-- <div class="row flex-column-reverse flex-lg-row">
         <div class="col-lg-6">
           <a :href="dashboard" class="btn btn-white tx-13 btn-uppercase"
             ><i data-feather="arrow-left" class="mg-r-5"></i> Back to Dashboard</a
           >
         </div>
-      </div>
+      </div> -->
   
       <div class="cms-footer mg-t-50">
         <hr />

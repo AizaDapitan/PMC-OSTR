@@ -70,10 +70,10 @@
         </li>
         <li class="nav-item {{ (request()->is('approvals/dashboard*')) ? 'active show' : '' }}""><a href=" {{ route('approvals.index') }}" class="nav-link"><i data-feather="check-circle"></i> <span>Approval (WFS)</span><span class="badge badge-danger rounded-circle ml-3">{{ $approval }}</span></a></li>
         <li class="nav-item with-sub {{ (request()->is('mcds/*')) ? 'active show' : '' }}">
-          <a href="#" class="nav-link"><i data-feather="arrow-down-circle"></i> <span>MCD Receiving</span><span class="badge badge-danger rounded-circle ml-3">{{ $receiving }}</span></a>
+          <a href="#" class="nav-link"><i data-feather="arrow-down-circle"></i> <span>Receiving Confirmation</span><span class="badge badge-danger rounded-circle ml-3">{{ $receiving }}</span></a>
           <ul>
             <li class="{{ (request()->is('mcds/dashboard*')) ? 'active' : '' }}"><a href="{{ route('mcds.index') }}">Manage Receiving<span class="badge badge-danger rounded-circle ml-3">{{ $receiving }}</span></a></li>
-            <li class="{{ (request()->is('mcds/create*')) ? 'active' : '' }}"><a href="{{ route('stockrequests.create') }}">Completed Stock</a></li>
+            <li class="{{ (request()->is('mcds/completed*')) ? 'active' : '' }}"><a href="{{ route('mcds.completed') }}">Completed Stock</a></li>
           </ul>
         </li>
         <li class="nav-label mg-t-25">Maintenance</li>
@@ -96,6 +96,13 @@
           <ul>
             <li class="{{ (request()->is('permissions/dashboard*')) ? 'active' : '' }}"><a href="{{ route('permissions.index') }}">Manage Permissions</a></li>
             <li class="{{ (request()->is('permissions/create')) ? 'active' : '' }}"><a href="{{ route('permissions.create') }}">Create</a></li>
+          </ul>
+        </li>
+        <li class="nav-item with-sub {{ (request()->is('satellites/*')) ? 'active show' : '' }}">
+          <a href="" class="nav-link"><i data-feather="list"></i> <span>Satellites</span></a>
+          <ul>
+            <li class="{{ (request()->is('satellites/dashboard*')) ? 'active' : '' }}"><a href="{{ route('satellites.index') }}">Manage Satellites</a></li>
+            <li class="{{ (request()->is('satellites/create')) ? 'active' : '' }}"><a href="{{ route('satellites.create') }}">Create</a></li>
           </ul>
         </li>
         <li class="nav-item {{ (request()->is('accessrights/user*')) ? 'active' : '' }}"><a href="{{ route('accessrights.user') }}" class="nav-link"><i data-feather="settings"></i> <span>User Access Rights</span></a></li>
