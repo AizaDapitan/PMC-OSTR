@@ -10,6 +10,7 @@ use OwenIt\Auditing\Auditable;
 
 class Product extends Model  implements AuditableContract
 {
+    protected $connection = 'pmccatalogue';
     use Auditable;
 
     protected $fillable = [

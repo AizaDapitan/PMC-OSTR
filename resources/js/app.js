@@ -24,6 +24,7 @@ import AutoComplete from 'primevue/autocomplete';
 import InputText from 'primevue/inputtext';
 import Dialog from 'primevue/dialog';
 
+import VueHtmlToPaper from 'vue-html-to-paper';
 // import 'primeicons/primeicons.css';
 
 const app = createApp({});

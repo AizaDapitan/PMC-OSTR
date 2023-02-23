@@ -1,5 +1,5 @@
 <template>
-  <div class="container-fluid pd-x-0">
+  <div class="container-fluid pd-x-0" id="printForm">
     <div
       class="
         d-sm-flex
@@ -28,6 +28,14 @@
           <li>{{ error[0] }}</li>
         </div>
       </ul>
+    </div>
+    <div class="col-lg-12 d-flex justify-content-start justify-content-lg-end">
+      <button
+        class="btn btn-primary tx-13 btn-uppercase mr-2 mb-2 ml-lg-1 mr-lg-0"
+        id="print"
+      >
+        <i data-feather="save" class="mg-r-5"></i> Print
+      </button>
     </div>
     <div class="row">
       <div class="col-lg-12">
@@ -140,7 +148,7 @@
             </div>
           </div>
 
-          <div class="col-lg-6">
+          <!-- <div class="col-lg-6">
             <div class="form-group">
               <label for="costcode"
                 >Cost Code<span class="text-danger" aria-required="true">
@@ -153,6 +161,21 @@
                 id="costcode"
                 name="costcode"
                 v-model="form.cost_code"
+                disabled="true"
+              />
+            </div>
+          </div> -->
+          <div class="col-lg-6">
+            <div class="form-group">
+              <label for="origin"
+                >Origin</label
+              >
+              <input
+                type="text"
+                class="form-control"
+                id="origin"
+                name="origin"
+                v-model="form.origin"
                 disabled="true"
               />
             </div>
@@ -202,7 +225,7 @@
             >
             <Column field="id" hidden="true"></Column>
             <Column field="stock_code" header="Stock Code"></Column>
-            <Column field="available_qty" header="Available Qty."></Column>
+            <!-- <Column field="available_qty" header="Available Qty."></Column> -->
             <Column field="uom" header="UoM"></Column>
             <Column field="description" header="Description"></Column>
             <Column field="requested_qty" header="Requested Qty."></Column>
@@ -233,9 +256,9 @@
     </div>
     <!-- row -->
 
-    <hr class="mg-t-30 mg-b-30" />
+    <hr class="mg-t-30 mg-b-30" id="hr" />
 
-    <div class="row flex-column-reverse flex-lg-row">
+    <div class="row flex-column-reverse flex-lg-row" id="actions">
       <div class="col-lg-6">
         <a :href="dashboard" class="btn btn-white tx-13 btn-uppercase"
           ><i data-feather="arrow-left" class="mg-r-5"></i> Back to Dashboard</a
@@ -277,6 +300,7 @@ export default {
         remarks: this.request.remarks,
         requested_by: this.request.requested_by,
         transaction_no: this.request.transaction_no,
+        origin: this.request.origin,
       },
     };
   },

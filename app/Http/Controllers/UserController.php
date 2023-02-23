@@ -70,8 +70,8 @@ class UserController extends Controller
                 'verify_peer_name' => false
             ]
         ]);
-        $employees = file_get_contents(config('app.api_path') . "hris-api-2.php", false, $streamContext);
-        // $employees = file_get_contents("https://localhost/camm/api/hris-api-2.php", false, $streamContext);
+        // $employees = file_get_contents(config('app.api_path') . "hris-api-2.php", false, $streamContext);
+        $employees = file_get_contents("https://localhost/camm/api/hris-api-2.php", false, $streamContext);
         return $employees;
     }
     public static function userList()

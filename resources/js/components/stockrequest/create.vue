@@ -152,7 +152,7 @@
                 </span></label
               >
               <select class="custom-select" @change="getData($event)">
-                <option  selected>MCD</option>
+                <option selected>MCD</option>
                 <option
                   v-for="satellite in satellites"
                   :key="satellite.name"
@@ -247,7 +247,7 @@
                 @complete="searchProduct($event, 'stock_code')"
                 style="width: 100%; line-height: 0.5"
                 inputStyle="width:100%"
-                field="stock_code"
+                field="code"
                 id="stock_code"
                 @item-select="onChange($event, 'stock_code')"
               />
@@ -273,7 +273,7 @@
                 @complete="searchProduct($event, 'description')"
                 style="width: 100%; line-height: 0.5"
                 inputStyle="width:100%"
-                field="description"
+                field="name"
                 id="description"
                 @item-select="onChange($event, 'description')"
               />
@@ -391,7 +391,7 @@ export default {
       selectedProduct_stock_code: null,
       displayError: false,
       errMsg: "",
-      satellites : [],
+      satellites: [],
       form: {
         id: 0,
         dept: "",
@@ -425,7 +425,7 @@ export default {
     this.form.requested_by =
       this.user.dept + "_" + this.user.username + "_" + today + " " + time;
     this.form.dept = this.user.dept;
-    
+
     this.fetchSatellites();
   },
   mounted() {
@@ -447,12 +447,10 @@ export default {
         "/products/getPublishedProducts"
       );
       this.products = res.data;
+      console.log(this.products);
     },
     async fetchSatellites() {
-      const res = await this.getDataFromDB(
-        "get",
-        "/satellites/getSatellites"
-      );
+      const res = await this.getDataFromDB("get", "/satellites/getSatellites");
       this.satellites = res.data;
     },
     async save() {
@@ -635,13 +633,19 @@ export default {
         } else {
           this.filteredProducts = this.products.filter((product) => {
             if (field == "description") {
-              return product.description
+              var name = product.name;
+              if (name == null) {
+                name = "";
+              }
+              return name
                 .toLowerCase()
                 .startsWith(event.query.toLowerCase());
             } else {
-              return product.stock_code
-                .toLowerCase()
-                .startsWith(event.query.toLowerCase());
+              var code = product.code;
+              if (code == null) {
+                code = "";
+              }
+              return code.toLowerCase().startsWith(event.query.toLowerCase());
             }
           });
         }
@@ -650,15 +654,15 @@ export default {
     onChange(event, field) {
       if (field == "description") {
         document.getElementById("stock_code").value =
-          this.selectedProduct_desc.stock_code;
+          this.selectedProduct_desc.code;
         document.getElementById("description").value =
-          this.selectedProduct_desc.description;
+          this.selectedProduct_desc.name;
         document.getElementById("uom").value = this.selectedProduct_desc.uom;
       } else {
         document.getElementById("stock_code").value =
-          this.selectedProduct_stock_code.stock_code;
+          this.selectedProduct_stock_code.code;
         document.getElementById("description").value =
-          this.selectedProduct_stock_code.description;
+          this.selectedProduct_stock_code.name;
         document.getElementById("uom").value =
           this.selectedProduct_stock_code.uom;
       }

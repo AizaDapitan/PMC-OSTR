@@ -111,12 +111,19 @@
                 :sortable="true"
                 style="min-width: 11rem"
               ></Column>
-              <Column
+              <!-- <Column
                 field="cost_code"
                 header="Cost Code"
                 :sortable="true"
                 style="min-width: 10rem"
+              ></Column> -->
+              <Column
+                field="origin"
+                header="Origin"
+                :sortable="true"
+                style="min-width: 10rem"
               ></Column>
+              
               <Column
                 field="date_filed"
                 header="Date Requested"
@@ -150,35 +157,39 @@
               <Column field="status" header="Status" :sortable="true">
                 <template #body="slotProps">
                   <span
-                    v-if="
-                      slotProps.data.status.toLowerCase() == 'fully approved' &&
-                      !slotProps.data.isReceived
-                    "
+                    v-if="slotProps.data.status.toLowerCase() == 'fully approved' && !slotProps.data.isReceived"
                     class="badge badge-warning tx-uppercase"
                     >Approved</span
                   >
                   <span
-                    v-else-if="
-                      slotProps.data.status.toLowerCase() == 'cancelled' &&
-                      !slotProps.data.isReceived
-                    "
+                    v-else-if="slotProps.data.status.toLowerCase() == 'cancelled' && !slotProps.data.isReceived"
                     class="badge badge-danger tx-uppercase"
                     >Cancelled</span
                   >
                   <span
-                    v-else-if="slotProps.data.isReceived"
+                    v-else-if="
+                       slotProps.data.isReceived
+                    "
                     class="badge badge-info tx-uppercase"
                     >Received</span
                   >
                   <span
                     v-else-if="
-                      slotProps.data.status.toLowerCase() == 'completed' &&
-                      !slotProps.data.isReceived
+                      slotProps.data.status.toLowerCase() == 'completed'  && !slotProps.data.isReceived
                     "
                     class="badge badge-success tx-uppercase"
                     >Completed</span
                   >
-                  <span v-else class="badge tx-uppercase">Pending</span>
+                  <span
+                    v-else-if="
+                      slotProps.data.status.toLowerCase() == 'submitted'  && !slotProps.data.isReceived
+                    "
+                    class="badge badge-success tx-uppercase"
+                    >Submitted</span
+                  >
+                  <span v-else class="badge tx-uppercase"
+                    >Pending</span
+                  >
                 </template>
               </Column>
               <Column

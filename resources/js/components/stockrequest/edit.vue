@@ -1,5 +1,5 @@
 <template>
-  <div class="container-fluid pd-x-0">
+  <div class="container-fluid pd-x-0" id="printForm">
     <div
       class="
         d-sm-flex
@@ -34,6 +34,14 @@
       <!-- <div v-for="error in errors" :key="error.id"> -->
       <!-- {{ }} -->
       <!-- </div> -->
+    </div>
+    <div class="col-lg-12 d-flex justify-content-start justify-content-lg-end">
+      <button
+        class="btn btn-primary tx-13 btn-uppercase mr-2 mb-2 ml-lg-1 mr-lg-0"
+        id="print"
+      >
+        <i data-feather="save" class="mg-r-5"></i> Print
+      </button>
     </div>
     <div class="row">
       <div class="col-lg-12">
@@ -168,8 +176,12 @@
                   *
                 </span></label
               >
-              <select v-model="selectedValue" class="custom-select" @change="getData($event)">
-                <option  selected>MCD</option>
+              <select
+                v-model="selectedValue"
+                class="custom-select"
+                @change="getData($event)"
+              >
+                <option selected>MCD</option>
                 <option
                   v-for="satellite in satellites"
                   :key="satellite.name"
@@ -225,7 +237,7 @@
             >
             <Column field="id" hidden="true"></Column>
             <Column field="stock_code" header="Stock Code"></Column>
-            <Column field="available_qty" header="Available Qty."></Column>
+            <!-- <Column field="available_qty" header="Available Qty."></Column> -->
             <Column field="uom" header="UoM"></Column>
             <Column field="description" header="Description"></Column>
             <Column field="requested_qty" header="Requested Qty.">
@@ -263,7 +275,7 @@
           </DataTable>
         </div>
       </div>
-      <div class="col-lg-12" style="margin-top: 8px">
+      <div class="col-lg-12" style="margin-top: 8px" id="addItem">
         <div class="row row-sm">
           <div class="col-lg-3">
             <div class="form-group">
@@ -273,7 +285,7 @@
                 @complete="searchProduct($event, 'stock_code')"
                 style="width: 100%; line-height: 0.5"
                 inputStyle="width:100%"
-                field="stock_code"
+                field="code"
                 id="stock_code"
                 @item-select="onChange($event, 'stock_code')"
                 placeholder="Stock Code"
@@ -300,7 +312,7 @@
                 @complete="searchProduct($event, 'description')"
                 style="width: 100%; line-height: 0.5"
                 inputStyle="width:100%"
-                field="description"
+                field="name"
                 id="description"
                 @item-select="onChange($event, 'description')"
                 placeholder="Description"
@@ -342,9 +354,9 @@
     </div>
     <!-- row -->
 
-    <hr class="mg-t-30 mg-b-30" />
+    <hr class="mg-t-30 mg-b-30" id="hr" />
 
-    <div class="row flex-column-reverse flex-lg-row">
+    <div class="row flex-column-reverse flex-lg-row" id="actions">
       <div class="col-lg-6">
         <a :href="dashboard" class="btn btn-white tx-13 btn-uppercase"
           ><i data-feather="arrow-left" class="mg-r-5"></i> Back to Dashboard</a
@@ -399,6 +411,7 @@
 import item from "../../components/item/item";
 import { h } from "vue";
 import Button from "primevue/button";
+import * as Printjs from "print-js";
 export default {
   props: ["request"],
   data() {
@@ -416,8 +429,8 @@ export default {
       displayError: false,
       errMsg: "",
       editingRows: [],
-      satellites : [],
-      selectedValue : "",
+      satellites: [],
+      selectedValue: "",
       form: {
         id: this.request.id,
         dept: this.request.dept,
@@ -429,7 +442,7 @@ export default {
         requested_by: this.request.requested_by,
         transaction_no: this.request.transaction_no,
         items: [],
-        origin :this.request.origin
+        origin: this.request.origin,
       },
     };
   },
@@ -474,10 +487,7 @@ export default {
       this.products = res.data;
     },
     async fetchSatellites() {
-      const res = await this.getDataFromDB(
-        "get",
-        "/satellites/getSatellites"
-      );
+      const res = await this.getDataFromDB("get", "/satellites/getSatellites");
       this.satellites = res.data;
     },
     async save() {
@@ -658,13 +668,19 @@ export default {
         } else {
           this.filteredProducts = this.products.filter((product) => {
             if (field == "description") {
-              return product.description
+              var name = product.name;
+              if (name == null) {
+                name = "";
+              }
+              return name
                 .toLowerCase()
                 .startsWith(event.query.toLowerCase());
             } else {
-              return product.stock_code
-                .toLowerCase()
-                .startsWith(event.query.toLowerCase());
+              var code = product.code;
+              if (code == null) {
+                code = "";
+              }
+              return code.toLowerCase().startsWith(event.query.toLowerCase());
             }
           });
         }
@@ -673,15 +689,15 @@ export default {
     onChange(event, field) {
       if (field == "description") {
         document.getElementById("stock_code").value =
-          this.selectedProduct_desc.stock_code;
+          this.selectedProduct_desc.code;
         document.getElementById("description").value =
-          this.selectedProduct_desc.description;
+          this.selectedProduct_desc.name;
         document.getElementById("uom").value = this.selectedProduct_desc.uom;
       } else {
         document.getElementById("stock_code").value =
-          this.selectedProduct_stock_code.stock_code;
+          this.selectedProduct_stock_code.code;
         document.getElementById("description").value =
-          this.selectedProduct_stock_code.description;
+          this.selectedProduct_stock_code.name;
         document.getElementById("uom").value =
           this.selectedProduct_stock_code.uom;
       }
@@ -737,9 +753,17 @@ export default {
     getData(event) {
       this.form.origin = event.target.value;
     },
+    print() {
+      print();
+      //  Printjs({
+      //    printable: "print-form",
+      //    type: "HTML"
+      // });
+    },
   },
 };
 </script>
+
 <style scoped lang="scss">
 // .p-button {
 //   margin: 0.3rem 0.5rem;
@@ -759,5 +783,5 @@ p {
 .p-dialog .p-button {
   min-width: 6rem;
 }
+
 </style>
-  

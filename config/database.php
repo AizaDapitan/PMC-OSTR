@@ -91,6 +91,19 @@ return [
             'prefix_indexes' => true,
         ],
 
+        'pmccatalogue' => [
+            'driver' => 'sqlsrv',
+            // 'url' => env('DATABASE_URL',''),
+            'host' => env('DB_HOST_PMC_CATALOGUE', 'localhost'),
+            'port' => env('DB_PORT_PMC_CATALOGUE', '1433'),
+            'database' => env('DB_DATABASE_PMC_CATALOGUE', 'forge'),
+            'username' => env('DB_USERNAME_PMC_CATALOGUE', 'forge'),
+            'password' => env('DB_PASSWORD_PMC_CATALOGUE', ''),
+            'charset' => 'utf8',
+            'prefix' => '',
+            'prefix_indexes' => true,
+        ],
+
     ],
 
     /*

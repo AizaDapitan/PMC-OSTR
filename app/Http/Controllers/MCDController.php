@@ -42,7 +42,7 @@ class MCDController extends Controller
         if (isset($request->dateTo)) {
             $dateTo = $request->dateTo;
         }
-        $requests = StockRequest::where([['isSaved', 1], ['active', 1], ['status', 'fully approved']])
+        $requests = StockRequest::where([['isSaved', 1], ['active', 1], ['status', 'fully approved'],['origin' ,'MCD']])
             ->whereBetween('created_at', [$dateFrom . ' 00:00:00', $dateTo . ' 23:59:59'])
             ->orderBy('id', 'desc')->get();
         return $requests;

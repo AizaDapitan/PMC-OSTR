@@ -34,7 +34,29 @@
 
   @yield('pagecss')
 </head>
-
+<style>
+ 
+  @media print {
+    body * {
+     visibility: hidden;
+    }
+  #printForm, #printForm * {
+    visibility: visible;
+  }
+  #addItem, #addItem *{
+    visibility: hidden;
+  }
+  #actions, #actions *{
+    visibility: hidden;
+  }
+  #hr, #hr *{
+    visibility: hidden;
+  }
+  #print, #print *{
+    visibility: hidden;
+  }
+  }
+</style>
 <body>
 
   <aside class="aside aside-fixed">
@@ -178,7 +200,7 @@
 
 
     <!-- Success -->
-    <div class="pos-fixed b-10 r-10">
+    <!-- <div class="pos-fixed b-10 r-10">
       <div id="toast_success" class="toast bg-success bd-0 wd-350" data-delay="3000" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="toast-header bg-success">
           <h6 class="tx-white tx-14 mg-b-0 mg-r-auto tx-semibold">
@@ -195,10 +217,10 @@
         @endif
         remove
       </div>
-    </div>
+    </div> -->
 
     <!-- Error -->
-    <div class="pos-fixed b-10 r-10">
+    <!-- <div class="pos-fixed b-10 r-10">
       <div id="toast_error" class="toast bg-danger bd-0 wd-350" data-delay="3000" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="toast-body pd-6 tx-white">
           <button type="button" class="ml-2 mb-1 close tx-normal tx-shadow-none" data-dismiss="toast" aria-label="Close">
@@ -210,10 +232,10 @@
           <p>{{ Session::get('error') }}</p>
         </div>
       </div>
-    </div>
+    </div> -->
 
     <!-- Error -->
-    <div class="pos-fixed b-10 r-10">
+    <!-- <div class="pos-fixed b-10 r-10">
       <div id="toastDynamicError" class="toast bg-danger bd-0 wd-350" data-delay="60000" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="toast-body pd-6 tx-white">
           <button type="button" class="ml-2 mb-1 close tx-normal tx-shadow-none" data-dismiss="toast" aria-label="Close">
@@ -245,7 +267,7 @@
           </ul>
         </div>
       </div>
-    </div>
+    </div> -->
 
     <div class="modal effect-scale" id="prompt-banner-error" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered" role="document">
@@ -440,6 +462,10 @@
         });
 
       }
+      const printBtn = document.getElementById('print');
+      printBtn.addEventListener('click',function(){
+        print();
+      });
     </script>
 </body>
 

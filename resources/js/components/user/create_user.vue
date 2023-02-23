@@ -192,7 +192,7 @@ export default {
   },
   mounted() {
     this.fetchRoles();
-    this.fetchSections();
+    // this.fetchSections();
   },
   methods: {
     async fetchSections() {

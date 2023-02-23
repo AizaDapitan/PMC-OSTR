@@ -66,7 +66,7 @@
         </div>
         <div class="form-group">
           <label for="email"
-            >Department<span class="text-danger" aria-required="true">
+            >Satelite<span class="text-danger" aria-required="true">
               *
             </span></label
           >
@@ -76,6 +76,7 @@
             id="dept"
             name="dept"
             v-model="form.dept"
+            disabled
           />
         </div>
         <div class="form-group">
@@ -105,23 +106,6 @@
           />
         </div>
         <div class="form-group">
-          <label for="section"
-            >Section<span class="text-danger" aria-required="true">
-              *
-            </span></label
-          >
-          <select
-            class="custom-select tx-base"
-            id="section"
-            name="section"
-            v-model="form.section"
-          >
-            <option v-for="section in sections" :key="section.id" :value="section.id">
-              {{ section.name }}
-            </option>
-          </select>
-        </div>
-        <div class="form-group">
           <label for="role"
             >Role<span class="text-danger" aria-required="true">
               *
@@ -136,18 +120,6 @@
             <option v-for="role in roles" :key="role.id" :value="role.id">
               {{ role.name }}
             </option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Assigned Module <i class="text-danger">*</i></label>
-          <select class="custom-select tx-base" v-model="form.assigned_module">
-            <option value="Department User">Department User</option>
-            <option value="Department Officer">Department Officer</option>
-            <option value="Receiving">Receiving</option>
-            <option value="Assayer">Assayer</option>
-            <option value="Tech/Digester">Tech/Digester</option>
-            <option value="Analyst">Analyst</option>
-            <option value="Officer">Officer</option>
           </select>
         </div>
       </div>
@@ -212,7 +184,7 @@ export default {
   },
   mounted() {
     this.fetchRoles();
-    this.fetchSections();
+    // this.fetchSections();
   },
   methods: {
     async fetchSections() {

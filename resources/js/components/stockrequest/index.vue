@@ -117,9 +117,15 @@
                 :sortable="true"
                 style="min-width: 11rem"
               ></Column>
-              <Column
+              <!-- <Column
                 field="cost_code"
                 header="Cost Code"
+                :sortable="true"
+                style="min-width: 11rem"
+              ></Column> -->
+              <Column
+                field="origin"
+                header="Origin"
                 :sortable="true"
                 style="min-width: 11rem"
               ></Column>
@@ -243,10 +249,11 @@
       </p>
     </div>
   </div>
-
-  <toast
+  <Toast position="top-right" />
+  <!-- <toast
     :breakpoints="{ '920px': { width: '100%', right: '0', left: '0' } }"
-  ></toast>
+  ></toast> -->
+  
   <ConfirmDialog></ConfirmDialog>
 </template>
     <script>

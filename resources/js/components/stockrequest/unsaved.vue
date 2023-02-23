@@ -111,9 +111,15 @@
                 :sortable="true"
                 style="min-width: 11rem"
               ></Column>
-              <Column
+              <!-- <Column
                 field="cost_code"
                 header="Cost Code"
+                :sortable="true"
+                style="min-width: 11rem"
+              ></Column> -->
+              <Column
+                field="origin"
+                header="Origin"
                 :sortable="true"
                 style="min-width: 11rem"
               ></Column>
